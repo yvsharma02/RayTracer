@@ -1,0 +1,9 @@
+#Files
+RayTracing/RayTracing.csproj
+
+#Folders
+
+RayTracing/obj/
+RayTracing/bin/
+.vs/
+RayTracing.sln
