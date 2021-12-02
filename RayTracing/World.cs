@@ -4,65 +4,71 @@ namespace RayTracing
 {
     public class World
     {
-        private List<LightSource> lightSources;
-        private List<Shape> shapes;
+        private List<WorldObject> worldObjects;
+
+        private LightSource globalLightSource;
+
+        private Vector3D globalLightDirection;
+        private RTColor globalLightColor;
+
         private Camera mainCamera;
 
-        public int ShapeCount
+        public int ObjectCount
         {
             get
             {
-                return shapes.Count;
+                return worldObjects.Count;
             }
         }
 
-        public int LightSourcesCount
+        public World(Camera mainCamera, GlobalLight globalLightSrc, params WorldObject[] worldObjectsToAdd)
         {
-            get
-            {
-                return lightSources.Count;
-            }
-        }
+            this.worldObjects = new List<WorldObject>();
+            SetMainCamera(mainCamera);
+            SetGlobalLightSource(globalLightSrc);
 
-        public World()
-        {
-            this.shapes = new List<Shape>();
-            this.lightSources = new List<LightSource>();
+            for (int i = 0; i < worldObjectsToAdd.Length; i++)
+                worldObjects.Add(worldObjectsToAdd[i]);
         }
 
         public void AddShape(Shape s)
         {
-            shapes.Add(s);
+            worldObjects.Add(s);
         }
 
         public void RemoveShape(Shape s)
         {
-            shapes.Remove(s);
+            worldObjects.Remove(s);
         }
 
-        public void SetCamera(Camera camera)
+        public void SetMainCamera(Camera camera)
         {
             mainCamera = camera;
         }
 
         public void AddLightSource(LightSource source)
         {
-            lightSources.Add(source);
+            worldObjects.Add(source);
         }
 
         public void Remove(LightSource source)
         {
-            lightSources.Remove(source);
+            worldObjects.Remove(source);
         }
 
-        public Shape GetShape(int index)
+        public WorldObject GetWorlObject(int index)
         {
-            return this.shapes[index];
+            return worldObjects[index];
         }
 
-        public LightSource GetLightSources(int index)
+        public LightSource GetGlobalLightSource()
         {
-            return lightSources[index];
+            return globalLightSource;
+        }
+
+        public void SetGlobalLightSource(LightSource src)
+        {
+            globalLightSource = src;
         }
 
         public Camera GetMainCamera()

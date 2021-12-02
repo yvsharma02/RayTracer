@@ -27,9 +27,14 @@
             this.z = 0;
         }
 
-        public  float Magnitute()
+        public float Magnitute()
         {
-            return (float)Math.Sqrt(x * x + y * y + z * z);
+            return (float)Math.Sqrt(MagnitudeSq());
+        }
+
+        public float MagnitudeSq()
+        {
+            return x * x + y * y + z * z;
         }
 
         public Vector3D Normalize()
@@ -37,6 +42,16 @@
             float mag = this.Magnitute();
 
             return new Vector3D(x / mag, y / mag, z / mag);
+        }
+
+        public float DistanceFrom(Vector3D other)
+        {
+            return Distance(this, other);
+        }
+
+        public static float Distance(Vector3D a, Vector3D b)
+        {
+            return (float) Math.Sqrt((a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y) + (a.z - b.z) * (a.z - b.z));
         }
 
         public static float Dot(Vector3D a, Vector3D b)
@@ -52,6 +67,11 @@
         public static Vector3D operator +(Vector3D a, Vector3D b)
         {
             return new Vector3D(a.x + b.x, a.y + b.y, a.z + b.z);
+        }
+
+        public static Vector3D operator *(Vector3D a, double b)
+        {
+            return a * (float)b;
         }
 
         public static Vector3D operator *(Vector3D a, float b)

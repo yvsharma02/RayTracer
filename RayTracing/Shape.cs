@@ -1,30 +1,16 @@
 ﻿namespace RayTracing
 {
-    public abstract class Shape
+    public abstract class Shape : WorldObject
     {
-        public abstract Vector3D? RayContactPosition(Ray ray);
-
-        public abstract RTColor ReEmit(RTColor incidentColor, Ray incidentRay);
-
-        public bool HitsRay(Ray ray)
+        public Shape(Vector3D position) : base(position)
         {
-            return RayContactPosition(ray).HasValue;
+
         }
 
-        public bool HitsRay(Ray ray, out Vector3D pointOfContact)
-        {
-            Vector3D? poc = RayContactPosition(ray);
+        public abstract RTColor CalculateBouncedRayColor(RTColor sourceColor, Ray sourceRay, Vector3D pointOfContact);
 
-            if (poc.HasValue)
-            {
-                pointOfContact = poc.Value;
-                return true;
-            }
-            else
-            {
-                pointOfContact = new Vector3D(0f, 0f, 0f);
-                return false;
-            }
-        }
+        public abstract Vector3D CalculateNormal(Vector3D pointOfContact);
+
+        public override bool IsLightSource => false;
     }
 }

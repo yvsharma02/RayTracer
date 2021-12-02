@@ -2,13 +2,41 @@
 {
     public class PointLight : LightSource
     {
-        public readonly Vector3D Location;
-        public readonly RTColor Color;
+        private const float DEFAULT_HIT_RADIUS = 0.1f;
 
-        public PointLight(RTColor color, Vector3D location)
+        public readonly float HitRadius;
+
+        public Vector3D Center
         {
-            this.Color = color;
-            this.Location = location;
+            get
+            {
+                return Position;
+            }
+        }
+
+        public PointLight(RTColor color, Vector3D position, float hitRadius = DEFAULT_HIT_RADIUS) : base(position, color)
+        {
+            this.HitRadius = hitRadius;
+        }
+
+        public override float CalculateMultiplier(Ray ray)
+        {
+            return 1f;
+        }
+
+        public override bool HitsRay(Ray ray, out Vector3D pointOfContact)
+        {
+            return MathUtil.RayHitsSphere(ray, Position, HitRadius, out pointOfContact);
+        }
+
+        public override bool HitsRay(Ray ray)
+        {
+            return MathUtil.RayHitsSphere(ray, Position, HitRadius);
+        }
+
+        protected override Vector3D? CalculateRayContactPosition(Ray ray)
+        {
+            return MathUtil.RaySpherePointOfContact(ray, Position, HitRadius);
         }
     }
 }

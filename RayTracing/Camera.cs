@@ -2,33 +2,113 @@
 {
     public class Camera
     {
-        public readonly Vector3D eyePosition;
+        private const float DOT_ZERO_ERROR_RANGE = 0.001f;
 
-        public readonly Vector3D screenTopRight;
-        public readonly Vector3D screenTopLeft;
-        public readonly Vector3D screenButtomLeft;
-        public readonly Vector3D screenButtomRight;
+        private Int2D resolution;
 
-        public readonly int ResolutionX;
-        public readonly int ResolutionY;
+        private Vector3D xAxisLine;
+        private Vector3D yAxisLine;
+        private Vector3D axisIntersectionPoint;
 
+        private Vector3D eyePosition;
+        private float xAxisSize;
+        private float yAxisSize;
+        
+        // In Radians.
+        private float rotation;
 
-        public readonly int RaysPerPixelX;
-        public readonly int RaysPerPixelY;
+        private Int2D raysPerPixel;
 
-        public Camera(Vector3D eyePosition, Vector3D sTR, Vector3D sTL, Vector3D sBL, Vector3D sBR,int rX, int rY, int rppx = 0, int rppY = 0)
+        private Vector3D cameraForwardDirection;
+        private Vector3D footOfPerpendiuclarFromEye;
+
+        private Vector3D cam_topLeft;
+        private Vector3D cam_topRight;
+        private Vector3D cam_buttomRight;
+        private Vector3D cam_buttomLeft;
+
+        private int bounceLimit;
+        public int BounceLimit
         {
-            this.eyePosition = eyePosition;
+            get
+            {
+                return bounceLimit;
+            }
+        }
 
-            this.screenTopRight = sTR;
-            this.screenTopLeft = sTL;
-            this.screenButtomLeft = sBL;
-            this.screenButtomRight = sBR;
-            this.ResolutionX = rX;
-            this.ResolutionY = rY;
+        public Int2D RaysPerPixel
+        {
+            get
+            {
+                return raysPerPixel;
+            }
+        }
 
-            this.RaysPerPixelX = 0;
-            this.RaysPerPixelY = 0;
+        public Int2D Resolution
+        {
+            get
+            {
+                return resolution;
+            }
+        }
+
+        public Camera(Vector3D xal, Vector3D yal, Vector3D aip, Vector3D ep, float xas, float yas, float rotation, Int2D res, Int2D rpp, int bounceLimit)
+        {
+            xal = xal.Normalize();
+            yal = yal.Normalize();
+
+            if (!(Math.Abs(Vector3D.Dot(xal, yal)) > DOT_ZERO_ERROR_RANGE))
+                throw new ArgumentException("xAxisLine and yAxisLine should be perpendicular");
+
+            this.resolution = res;
+            this.xAxisLine = xal;
+            this.yAxisLine = yal;
+            this.axisIntersectionPoint = aip;
+            this.eyePosition = ep;
+            this.xAxisSize = xas;
+            this.yAxisSize = yas;
+            this.rotation = rotation;
+            this.raysPerPixel = rpp;
+            this.bounceLimit = bounceLimit;
+
+            Initialise();
+        }
+
+        private void Initialise()
+        {
+            rotation = (float) (rotation % (2 * Math.PI));
+
+            Vector3D n = Vector3D.Cross(xAxisLine, yAxisLine).Normalize();
+            Vector3D e = eyePosition;
+            Vector3D o = axisIntersectionPoint;
+
+            float lamda = Vector3D.Dot(o - e, n);
+
+            footOfPerpendiuclarFromEye = e + n * lamda;
+            cameraForwardDirection = (n * lamda * -1f).Normalize();
+
+            Vector3D finalXAxis = o + (xAxisLine * Math.Cos(rotation) + yAxisLine * Math.Sin(rotation));
+            Vector3D finalYAxis = o + (yAxisLine * Math.Cos(rotation) - xAxisLine * Math.Sin(rotation));
+
+            xAxisLine = finalXAxis;
+            yAxisLine = finalYAxis;
+
+            cam_topLeft = footOfPerpendiuclarFromEye - (xAxisLine * (xAxisSize / 2f)) + (yAxisLine * (yAxisSize / 2f));
+            cam_topRight = footOfPerpendiuclarFromEye + (xAxisLine * (xAxisSize / 2f)) + (yAxisLine * (yAxisSize / 2f));
+            cam_buttomRight = footOfPerpendiuclarFromEye + (xAxisLine * (xAxisSize / 2f)) - (yAxisLine * (yAxisSize / 2f));
+            cam_buttomLeft = footOfPerpendiuclarFromEye - (xAxisLine * (xAxisSize / 2f)) - (yAxisLine * (yAxisSize / 2f));
+        }
+
+        public Ray PixelIndexToRay(Int2D pixel, Int2D pixelRayIndex)
+        {
+            Vector3D origin = eyePosition;
+
+            float percentX = (pixel.x * raysPerPixel.x + pixelRayIndex.x) / ((resolution.x + 1) * raysPerPixel.x);
+            float percentY = (pixel.y * raysPerPixel.y + pixelRayIndex.y) / ((resolution.y + 1) * raysPerPixel.y);
+
+            Vector3D screenPt = cam_topLeft + (cam_topRight - cam_topLeft) * percentX - (cam_buttomLeft - cam_topLeft) * percentY;
+
+            return new Ray(origin, screenPt - origin);
         }
     }
 }
