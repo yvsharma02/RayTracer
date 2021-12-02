@@ -34,7 +34,7 @@
 
         public float MagnitudeSq()
         {
-            return x * x + y * y + z * z;
+            return (x * x) + (y * y) + (z * z);
         }
 
         public Vector3D Normalize()
@@ -61,7 +61,11 @@
 
         public static Vector3D Cross(Vector3D a, Vector3D b)
         {
-            return new Vector3D(a.y * b.z - a.z * b.y, -(a.x * b.z - a.z * b.x), a.x * b.y - b.y * a.x);
+            float _x = a.y * b.z - a.z * b.y;
+            float _y = -(a.x * b.z - a.z * b.x);
+            float _z = a.x * b.y - a.y * b.x;
+
+            return new Vector3D(_x, _y, _z);
         }
 
         public static Vector3D operator +(Vector3D a, Vector3D b)

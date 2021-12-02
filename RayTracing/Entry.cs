@@ -4,7 +4,8 @@
     {
         public static void Main(String[] args)
         {
-            Console.WriteLine("Hello World!");
+            TestScene scene = new TestScene();
+            scene.Render();
         }
     }
 }

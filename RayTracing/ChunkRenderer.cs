@@ -12,6 +12,8 @@
         public ChunkRenderer(World world, Int2D pbs, Int2D pbe)
         {
             this.world = world;
+            this.pixelBoundsStart = pbs;
+            this.pixelBoundsEnd = pbe;
         }
 
         public void SetPixelBounds(Int2D pbs, Int2D pbe)
@@ -104,7 +106,7 @@
             }
             reverseRayDirection = reverseRayDirection.Normalize();
 
-            Ray ray = new Ray(reverseRayOrigin, reverseRayDirection);
+            Ray reverseRay = new Ray(reverseRayOrigin, reverseRayDirection);
 
             RTColor resultantColor = RTColor.Black;
 
@@ -119,7 +121,7 @@
 
                 Vector3D poc;
                 
-                if (obj.HitsRay(ray, out poc))
+                if (obj.HitsRay(reverseRay, out poc))
                 {
                     float dist = poc.DistanceFrom(reverseRayOrigin);
 
@@ -140,7 +142,7 @@
                     Shape shape = (Shape)closestHitObject;
 
                     Vector3D normal = shape.CalculateNormal(closestHitObjPOC);
-                    Vector3D reflectedRayDir = CalculateReflectedRayDirection(ray.Direction, normal);
+                    Vector3D reflectedRayDir = CalculateReflectedRayDirection(reverseRay.Direction, normal);
 
                     Vector3D actualRaySrc;
                     RTColor incidentClr = Trace(closestHitObjPOC, reflectedRayDir, world, bouncesRemaining - 1, out actualRaySrc);
@@ -150,14 +152,14 @@
                 else
                 {
                     LightSource ls = (LightSource)closestHitObject;
-                    resultantColor = ls.LightColor * ls.CalculateMultiplier(ray);
+                    resultantColor = ls.LightColor * ls.CalculateMultiplier(reverseRay);
                 }
             }
             else
             {
                 LightSource ls = world.GetGlobalLightSource();
 
-                resultantColor = ls.LightColor * ls.CalculateMultiplier(ray);
+                resultantColor = ls.LightColor * ls.CalculateMultiplier(reverseRay);
                 actualRayOrigin = (closestHitObjPOC - ls.Position) * float.PositiveInfinity;
             }
 

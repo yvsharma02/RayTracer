@@ -63,7 +63,7 @@ namespace RayTracing
                     Int2D boundsEnd = new Int2D(pixelsPerChunk.x * (i + 1), pixelsPerChunk.y * (j + 1));
                     chunkRenderes[i, j] = new ChunkRenderer(world, boundsStart, boundsEnd);
 
-                    Thread renderThread = new Thread(() =>
+//                    Thread renderThread = new Thread(() =>
                     {
                         chunkRenderes[i, j].Render((clrs, startTime, worldRendered, bs, be) =>
                         {
@@ -74,7 +74,7 @@ namespace RayTracing
                             completedList[x, y] = true;
 
                             for (int l = 0; l < clrs.GetLength(0); l++)
-                                for (int m = 0; m < clrs.GetLength(1); l++)
+                                for (int m = 0; m < clrs.GetLength(1); m++)
                                     renderedImage[bs.x + l, bs.y + m] = clrs[l, m].ToARGB();
 
                             for (int l = 0; l < completedList.GetLength(0); l++)
@@ -84,9 +84,9 @@ namespace RayTracing
 
                             onComplete(renderedImage, startTime);
                         });
-                    });
+                    }//);
 
-                    renderThread.Start();
+//                    renderThread.Start();
                 }
             }
 

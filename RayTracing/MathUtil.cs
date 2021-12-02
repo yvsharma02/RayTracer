@@ -41,7 +41,7 @@
             Vector3D p = sphereCenter;
 
             float B = 2f * Vector3D.Dot(d, (o - p));
-            float C = 2f * (o - p).MagnitudeSq() - sphereRadius * sphereRadius;
+            float C = (o - p).MagnitudeSq() - sphereRadius * sphereRadius;
 
             float D = B * B - 4 * C;
 

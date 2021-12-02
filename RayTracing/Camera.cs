@@ -57,7 +57,7 @@
             xal = xal.Normalize();
             yal = yal.Normalize();
 
-            if (!(Math.Abs(Vector3D.Dot(xal, yal)) > DOT_ZERO_ERROR_RANGE))
+            if (Math.Abs(Vector3D.Dot(xal, yal)) > DOT_ZERO_ERROR_RANGE)
                 throw new ArgumentException("xAxisLine and yAxisLine should be perpendicular");
 
             this.resolution = res;
@@ -87,11 +87,11 @@
             footOfPerpendiuclarFromEye = e + n * lamda;
             cameraForwardDirection = (n * lamda * -1f).Normalize();
 
-            Vector3D finalXAxis = o + (xAxisLine * Math.Cos(rotation) + yAxisLine * Math.Sin(rotation));
-            Vector3D finalYAxis = o + (yAxisLine * Math.Cos(rotation) - xAxisLine * Math.Sin(rotation));
+            Vector3D finalXAxis = (xAxisLine * Math.Cos(rotation) + yAxisLine * Math.Sin(rotation));
+            Vector3D finalYAxis = (yAxisLine * Math.Cos(rotation) - xAxisLine * Math.Sin(rotation));
 
-            xAxisLine = finalXAxis;
-            yAxisLine = finalYAxis;
+            xAxisLine = finalXAxis.Normalize();
+            yAxisLine = finalYAxis.Normalize();
 
             cam_topLeft = footOfPerpendiuclarFromEye - (xAxisLine * (xAxisSize / 2f)) + (yAxisLine * (yAxisSize / 2f));
             cam_topRight = footOfPerpendiuclarFromEye + (xAxisLine * (xAxisSize / 2f)) + (yAxisLine * (yAxisSize / 2f));
@@ -103,12 +103,13 @@
         {
             Vector3D origin = eyePosition;
 
-            float percentX = (pixel.x * raysPerPixel.x + pixelRayIndex.x) / ((resolution.x + 1) * raysPerPixel.x);
-            float percentY = (pixel.y * raysPerPixel.y + pixelRayIndex.y) / ((resolution.y + 1) * raysPerPixel.y);
+            float percentX = (pixel.x * raysPerPixel.x + pixelRayIndex.x) / (float) ((resolution.x + 1) * raysPerPixel.x);
+            float percentY = (pixel.y * raysPerPixel.y + pixelRayIndex.y) / (float)((resolution.y + 1) * raysPerPixel.y);
 
-            Vector3D screenPt = cam_topLeft + (cam_topRight - cam_topLeft) * percentX - (cam_buttomLeft - cam_topLeft) * percentY;
+            Vector3D screenPt = cam_topLeft + (cam_topRight - cam_topLeft) * percentX + (cam_buttomLeft - cam_topLeft) * percentY;
+            Vector3D dir = screenPt - origin;
 
-            return new Ray(origin, screenPt - origin);
+            return new Ray(origin, dir);
         }
     }
 }

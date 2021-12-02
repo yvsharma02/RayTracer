@@ -10,7 +10,7 @@
         {
             get
             {
-                return irgb >> 24;
+                return irgb >> 24 & (0x00FF);
             }
         }
 
@@ -18,7 +18,7 @@
         {
             get
             {
-                return irgb >> 16 & (0x000F);
+                return irgb >> 16 & (0x00FF);
             }
         }
 
@@ -26,7 +26,7 @@
         {
             get
             {
-                return irgb >> 8 & (0x000F);
+                return irgb >> 8 & (0x00FF);
             }
         }
 
@@ -34,7 +34,7 @@
         {
             get
             {
-                return irgb & (0x000F);
+                return irgb & (0x00FF);
             }
         }
 
@@ -57,7 +57,11 @@
 
         public System.Drawing.Color ToARGB()
         {
-            return System.Drawing.Color.FromArgb(255, (Intensity / 255) * R, (Intensity / 255) * G, (Intensity / 255) * B);
+            float r = (Intensity / 255f) * R;
+            float g = (Intensity / 255f) * G;
+            float b = (Intensity / 255f) * B;
+
+            return System.Drawing.Color.FromArgb(255, (int)r, (int)g, (int)b);
         }
 
         public static RTColor Multiply(RTColor clr, float multiplier)
@@ -67,7 +71,7 @@
 
         public RTColor(int intensity, int r, int g, int b)
         {
-            irgb = intensity << 24 | r << 16 | g << 8 | b;
+            irgb = (intensity << 24) | (r << 16) | (g << 8) | b;
         }
 
         public RTColor(float intensity, float r, float g, float b) : this((int) intensity, (int) r, (int) g, (int) b) {}
