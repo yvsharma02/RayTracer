@@ -52,7 +52,7 @@
 
                     for (int x = 0; x < rpp.x; x++)
                         for (int y = 0; y < rpp.y; y++)
-                            currentPixelColors[x, y] = StartTrace(cam.PixelIndexToRay(new Int2D(i, j), new Int2D(x, y)), world, cam);
+                            currentPixelColors[x, y] = StartTrace(cam.PixelIndexToRay(new Int2D(pixelBoundsStart.x +i, pixelBoundsStart.y + j), new Int2D(x, y)), world, cam);
 
                     colors[i, j] = CalculateFinalColor(currentPixelColors);
                 }
@@ -159,8 +159,16 @@
             {
                 LightSource ls = world.GetGlobalLightSource();
 
-                resultantColor = ls.LightColor * ls.CalculateMultiplier(reverseRay);
-                actualRayOrigin = (closestHitObjPOC - ls.Position) * float.PositiveInfinity;
+                if (ls != null)
+                {
+                    resultantColor = ls.LightColor * ls.CalculateMultiplier(reverseRay);
+                    actualRayOrigin = (closestHitObjPOC - ls.Position) * float.PositiveInfinity;
+                }
+                else
+                {
+                    resultantColor = new RTColor();
+                    actualRayOrigin = reverseRayOrigin + reverseRayDirection * float.PositiveInfinity;
+                }
             }
 
             return resultantColor;

@@ -17,14 +17,14 @@ namespace RayTracing
             this.outputLocation = saveLocation;
         }
 
-        public void Render()
+        public void Render(bool useMultithreading)
         {
             bool completed = false;
 
             StartRender((img, startTime) =>
             {
                 DateTime writeTimeStart = DateTime.Now;
-                Console.WriteLine("Render Complete in {0}ms. Writing to disk. Location: {1}", (DateTime.Now - startTime).TotalMilliseconds, outputLocation);
+                Log.InfoLine("Render Complete in {0}ms. Writing to disk. Location: {1}", (DateTime.Now - startTime).TotalMilliseconds, outputLocation);
                 Bitmap bmp = new Bitmap(img.GetLength(0), img.GetLength(1));
 
                 for (int i = 0; i < bmp.Width; i++)
@@ -32,9 +32,9 @@ namespace RayTracing
                         bmp.SetPixel(i, j, img[i, j]);
 
                 bmp.Save(outputLocation);
-                Console.WriteLine("Image written to disk in {0}ms", (DateTime.Now - writeTimeStart).TotalMilliseconds);
+                Log.InfoLine("Image written to disk in {0}ms", (DateTime.Now - writeTimeStart).TotalMilliseconds);
                 completed = true;
-            });
+            }, useMultithreading);
 
             while (!completed)
                 Thread.Sleep(SLEEP_MS);
@@ -42,7 +42,7 @@ namespace RayTracing
         }
 
         // DateTime refers to the time render was started.
-        private void StartRender(System.Action<System.Drawing.Color[,], DateTime> onComplete)
+        private void StartRender(System.Action<System.Drawing.Color[,], DateTime> onComplete, bool multiThreadded)
         {
             DateTime startTime = DateTime.Now;
 
@@ -50,6 +50,11 @@ namespace RayTracing
 
             Int2D resolution = world.GetMainCamera().Resolution;
             Int2D pixelsPerChunk = new Int2D(resolution.x / numberOfChunks.x, resolution.y / numberOfChunks.y);
+
+            Camera cam = world.GetMainCamera();
+
+            Log.InfoLine("Starting Rendering. Resolution: {0}x{1}, Bouces: {2}, RaysPerPixel: {3}, Multithreading: {4}",
+                resolution.x, resolution.y, cam.BounceLimit, cam.RaysPerPixel.x * cam.RaysPerPixel.y, multiThreadded);
 
             System.Drawing.Color[,] renderedImage = new System.Drawing.Color[resolution.x, resolution.y];
 
@@ -63,14 +68,17 @@ namespace RayTracing
                     Int2D boundsEnd = new Int2D(pixelsPerChunk.x * (i + 1), pixelsPerChunk.y * (j + 1));
                     chunkRenderes[i, j] = new ChunkRenderer(world, boundsStart, boundsEnd);
 
-//                    Thread renderThread = new Thread(() =>
-                    {
-                        chunkRenderes[i, j].Render((clrs, startTime, worldRendered, bs, be) =>
-                        {
-                            int x = bs.x / pixelsPerChunk.x;
-                            int y = bs.y / pixelsPerChunk.y;
+                    // The thread does not start immediately on thread.Start, but after some time. So it will start AFTER i, j have already changed
+                    // Hence this becomes necessary.
+                    int x = i;
+                    int y = j;
 
-                            Console.WriteLine("({0}, {1}) Render complete in {2} ms", x, y, (DateTime.Now - startTime).TotalMilliseconds);
+                    ThreadStart workerThreadFunction = () =>
+                    {
+                        Log.InfoLine("Starting Chunk ({0}, {1}) Render", x, y);
+                        chunkRenderes[x, y].Render((clrs, chunkStartTime, worldRendered, bs, be) =>
+                        {
+                            Log.InfoLine("Chunk ({0}, {1}) Render complete in {2} ms", x, y, (DateTime.Now - chunkStartTime).TotalMilliseconds);
                             completedList[x, y] = true;
 
                             for (int l = 0; l < clrs.GetLength(0); l++)
@@ -84,9 +92,15 @@ namespace RayTracing
 
                             onComplete(renderedImage, startTime);
                         });
-                    }//);
+                    };
 
-//                    renderThread.Start();
+                    if (multiThreadded)
+                    {
+                        Thread renderThread = new Thread(workerThreadFunction);
+                        renderThread.Start();
+                    }
+                    else
+                        workerThreadFunction();
                 }
             }
 
