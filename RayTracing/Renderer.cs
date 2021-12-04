@@ -78,19 +78,24 @@ namespace RayTracing
                         Log.InfoLine("Starting Chunk ({0}, {1}) Render", x, y);
                         chunkRenderes[x, y].Render((clrs, chunkStartTime, worldRendered, bs, be) =>
                         {
-                            Log.InfoLine("Chunk ({0}, {1}) Render complete in {2} ms", x, y, (DateTime.Now - chunkStartTime).TotalMilliseconds);
                             completedList[x, y] = true;
 
                             for (int l = 0; l < clrs.GetLength(0); l++)
                                 for (int m = 0; m < clrs.GetLength(1); m++)
                                     renderedImage[bs.x + l, bs.y + m] = clrs[l, m].ToARGB();
 
+                            int numberOfChunksRendered = 0;
+                            int totalChunks = completedList.GetLength(0) * completedList.GetLength(1);
+
                             for (int l = 0; l < completedList.GetLength(0); l++)
                                 for (int m = 0; m < completedList.GetLength(1); m++)
-                                    if (!completedList[l, m])
-                                        return;
+                                    if (completedList[l, m])
+                                        numberOfChunksRendered += 1;
 
-                            onComplete(renderedImage, startTime);
+                            Log.InfoLine("Chunk ({0}, {1}) Render complete in {2} ms. Completed {3}/{4}", x, y, (DateTime.Now - chunkStartTime).TotalMilliseconds, numberOfChunksRendered, totalChunks);
+
+                            if (numberOfChunksRendered == totalChunks)
+                                onComplete(renderedImage, startTime);
                         });
                     };
 

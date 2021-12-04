@@ -2,6 +2,8 @@
 {
     public class GlobalLight : LightSource
     {
+        private const float GLOBAL_MIN_MULTIPLIER = 0;
+
         public readonly Vector3D Direction;
 
         public GlobalLight(Vector3D position, Vector3D direction, RTColor color) : base(position, color)
@@ -15,8 +17,8 @@
 
             float multiplier = Vector3D.Dot(dir, Direction);
 
-            if (multiplier <= 0)
-                return 0f;
+            if (multiplier <= GLOBAL_MIN_MULTIPLIER)
+                return GLOBAL_MIN_MULTIPLIER;
 
             return multiplier;
         }

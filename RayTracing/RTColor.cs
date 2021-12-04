@@ -81,5 +81,10 @@
             return RTColor.Multiply(a, multiplier);
         }
 
+        public override string ToString()
+        {
+            return String.Format("(I:{0}, R:{1}, G:{2}, B:{3})", Intensity, R, G, B);
+        }
+
     }
 }

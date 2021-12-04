@@ -2,7 +2,6 @@
 {
     public class Camera
     {
-        private const float DOT_ZERO_ERROR_RANGE = 0.001f;
 
         private Int2D resolution;
 
@@ -57,7 +56,7 @@
             xal = xal.Normalize();
             yal = yal.Normalize();
 
-            if (Math.Abs(Vector3D.Dot(xal, yal)) > DOT_ZERO_ERROR_RANGE)
+            if (!Vector3D.ArePerpendicular(xal, yal))
                 throw new ArgumentException("xAxisLine and yAxisLine should be perpendicular");
 
             this.resolution = res;

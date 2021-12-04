@@ -26,7 +26,7 @@
 
             Vector3D poc = (o - p) + d * lambda;
 
-            float distance = poc.Magnitute();
+            float distance = poc.Magnitude();
 
             if (distance <= sphereRadius && lambda >= 0f)
                 return true;

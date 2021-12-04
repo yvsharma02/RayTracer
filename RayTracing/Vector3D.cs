@@ -2,6 +2,8 @@
 {
     public struct Vector3D
     {
+        private const float DOT_ZERO_ERROR_RANGE = 0.001f;
+
         public readonly float x;
         public readonly float y;
         public readonly float z;
@@ -27,7 +29,7 @@
             this.z = 0;
         }
 
-        public float Magnitute()
+        public float Magnitude()
         {
             return (float)Math.Sqrt(MagnitudeSq());
         }
@@ -39,7 +41,7 @@
 
         public Vector3D Normalize()
         {
-            float mag = this.Magnitute();
+            float mag = this.Magnitude();
 
             return new Vector3D(x / mag, y / mag, z / mag);
         }
@@ -57,6 +59,11 @@
         public static float Dot(Vector3D a, Vector3D b)
         {
             return a.x * b.x + a.y * b.y + a.z * b.z;
+        }
+
+        public static bool ArePerpendicular(Vector3D a, Vector3D b)
+        {
+            return Math.Abs(Vector3D.Dot(a, b)) <= DOT_ZERO_ERROR_RANGE;
         }
 
         public static Vector3D Cross(Vector3D a, Vector3D b)

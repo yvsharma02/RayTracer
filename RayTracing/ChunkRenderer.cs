@@ -129,6 +129,7 @@
                     {
                         closestHitObject = obj;
                         closestHitObjPOC = poc;
+                        minDistance = dist;
                     }
                 }
             }
