@@ -3,21 +3,64 @@
     public class TestScene
     {
         private const bool MULTI_THREADING_ENABLED = true;
+        private const bool USE_ADVANCE_TRACE = true;
 
         private const string SAVE_LOCATION = @"D:\Projects\VisualStudio\RayTracing\Generated";
 
-        private const int CHUNKS_X = 32;
-        private const int CHUNKS_Y = 32;
+        private const int CHUNKS_X = 8;
+        private const int CHUNKS_Y = 8;
 
-        private const int RES_X = 4096;
-        private const int RES_Y = 4096;
+        private const int RES_X = 1024;
+        private const int RES_Y = 1024;
 
-        private const int RAYS_PER_PIXEL_X = 64;
-        private const int RAYS_PER_PIXEL_Y = 64;
+        private const int RAYS_PER_PIXEL_X = 4;
+        private const int RAYS_PER_PIXEL_Y = 4;
 
-        private const int BOUCES = 64;
+        private const int BOUCES = 8;
 
         private World world;
+
+        private RTColor CalculateColor(RTRay[][] clrs, float iDiv, float rDiv, float gDiv, float bDiv)
+        {
+            int count = 0;
+
+            for (int i = 0; i < clrs.Length; i++)
+                count += clrs[i].Length;
+
+            float _i = 0f, r = 0f, g = 0f, b = 0f;
+
+            for (int i = 0; i < clrs.GetLength(0); i++)
+            {
+                for (int j = 0; j < clrs[i].Length; j++)
+                {
+                    RTRay ray = clrs[i][j];
+
+                    float finalIntensity = 0f;
+
+                    if (!ray.Origin.IsInfinity)
+                    {
+                        float dist = ray.Origin.DistanceFrom(ray.PointOfContact.Value);
+
+                        finalIntensity = ray.SourceColor.Intensity / (dist * dist);
+
+                        if (finalIntensity >= 255f)
+                            finalIntensity = 255f;
+                    }
+                    else
+                    {
+                        finalIntensity = ray.SourceColor.Intensity;
+                    }
+
+                    _i += finalIntensity;
+                    r += (ray.SourceColor.R / ((float)count));
+                    g += (ray.SourceColor.G / ((float)count));
+                    b += (ray.SourceColor.B / ((float)count));
+                }
+            }
+
+            return new RTColor(_i / iDiv, r / rDiv, g / gDiv, b / bDiv);
+        }
+
 
         public TestScene()
         {
@@ -26,78 +69,34 @@
             Camera camera = new Camera(
                 new Vector3D(1, 0, 0),
                 new Vector3D(0, 1f, .2f),
-                new Vector3D(-10, -10, -5),
-                new Vector3D(0, 5, -15),
-                10,
-                10,
+                new Vector3D(-10, -10, 5),
+                new Vector3D(0, 5, 25),
+                25,
+                25,
                 0,
                 new Int2D(RES_X, RES_Y),
                 new Int2D(RAYS_PER_PIXEL_X, RAYS_PER_PIXEL_Y),
-                BOUCES);
+                BOUCES,
+                new RTColor(),
+                new RTColor());
 
             world.SetMainCamera(camera);
 
-            GlobalLight globalLight = new GlobalLight(new Vector3D(0f, 100f, 0f), new Vector3D(0.05f, -1f, -0.5f), new RTColor(255, 255, 251, 245));
+//            GlobalLight globalLight = new GlobalLight(new Vector3D(0f, 100f, 0f), new Vector3D(-0.0001f, 0, 0), new Vector3D(0, -0.0004f, -0.0001f), new Int2D(4, 4), new RTColor(255, 255, 255, 255));
+            GlobalLight globalLight1 = new GlobalLight(new Vector3D(0f, 100f, 0f), new Vector3D(0f, 0, 0.0001f), new Vector3D(-0.0001f, -0.0004f, 0f), new Int2D(4, 4), new RTColor(255, 255, 255, 255));
 
-            world.SetGlobalLightSource(globalLight);
+//            world.AddLightSource(globalLight);
+            world.AddLightSource(globalLight1);
 
-            world.AddShape(new SphereShape(new Vector3D(0, 0, 0), 1f, (incidentClr, incidentRay, pointOfContact) =>
+            world.AddShape(new SphereShape(new Vector3D(7f, 1.75f, 1f), 1f, (clrs, dir) =>
             {
-                return new RTColor(incidentClr.Intensity / 1.2f, incidentClr.R / 2, incidentClr.G, incidentClr.B);
-            }));
-            world.AddShape(new SphereShape(new Vector3D(2.1f, 0, 0), 1f, (incidentClr, incidentRay, pointOfContact) =>
-            {
-                return new RTColor(incidentClr.Intensity / 1.2f, incidentClr.R, incidentClr.G, incidentClr.B);
+                return CalculateColor(clrs, 1f, 1.5f, 1.5f, 1.5f);
             }));
 
-            world.AddShape(new SphereShape(new Vector3D(1.05f, 0, 2.1f), 1f, (incidentClr, incidentRay, pointOfContact) =>
+            world.AddShape(new PlaneShape(new Vector3D(-10, 0.6f, -10), new Vector3D(0, 0, 1) * 50, new Vector3D(1, 0, 0) * 50, (clrs, dir) =>
             {
-                return new RTColor(incidentClr.Intensity / 1.4f, incidentClr.R, incidentClr.G / 10, incidentClr.B);
+                return CalculateColor(clrs, 1f, 1f, 1f, 1f);
             }));
-
-            world.AddShape(new SphereShape(new Vector3D(1f, 1.75f, 1f), 1f, (incidentClr, incidentRay, pointOfContact) =>
-            {
-                return incidentClr;
-            }));
-
-            /*
-            world.AddShape(new SphereShape(new Vector3D(0, 2, 0), 1f, (incidentClr, incidentRay, pointOfContact) =>
-            {
-                return new RTColor(incidentClr.Intensity / 2, incidentClr.R, incidentClr.G / 5, incidentClr.B);
-            }));
-
-            world.AddShape(new SphereShape(new Vector3D(0, 4, 0), 1f, (incidentClr, incidentRay, pointOfContact) =>
-            {
-                return new RTColor(incidentClr.Intensity / 2, incidentClr.R, incidentClr.G, incidentClr.B / 5);
-            }));
-            */
-
-            /*
-            world.AddShape(new PlaneShape (new Vector3D(0, -10, 0), new Vector3D(0, 0, 1) * 100, new Vector3D(-1, 1) * 100, (clr, ray, poc) =>
-            {
-                //                return new RTColor(clr.Intensity, clr.R / 2, clr.G / 3, clr.B / 4);
-                return new RTColor(clr.Intensity / 1.2f, clr.R, clr.G, clr.B);
-            }));
-            */
-
-            world.AddShape(new PlaneShape(new Vector3D(-10, -1.1f, -10), new Vector3D(0, 0, 1) * 25, new Vector3D(1, 0, 0) * 25, (clr, ray, poc) =>
-            {
-                return new RTColor(clr.Intensity / 1.5f, clr.R, clr.G, clr.B);
-            }));
-
-            /*
-            world.AddShape(new PlaneShape(new Vector3D(0, 0, 5.5f), new Vector3D(1, 0, 0) * 6, new Vector3D(0, 1, 0) * 2, (clr, ray, poc) =>
-            {
-                return clr;
-            }));
-            */
-
-            /*
-            world.AddShape(new PlaneShape(new Vector3D(0, -10, 0), new Vector3D(0, 0, 250), new Vector3D(250, 0, 0), (incidentClr, incidentRay, pointOfContact) =>
-            {
-                return new RTColor(incidentClr.Intensity / 2, incidentClr.R, incidentClr.G, incidentClr.B);
-            }));
-            */
         }
 
         public void Render()
@@ -105,7 +104,7 @@
             string fileName = DateTime.Now.ToString().Replace(":", "-") + ".png";
 
             Renderer render = new Renderer(new Int2D(CHUNKS_X, CHUNKS_Y), world, Path.Combine(SAVE_LOCATION, fileName));
-            render.Render(true);
+            render.Render(MULTI_THREADING_ENABLED, USE_ADVANCE_TRACE);
         }
     }
 }

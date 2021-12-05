@@ -62,5 +62,39 @@
 
             return o + (d * realRoot);
         }
+
+        public static Vector3D? RayPlaneContact(Ray ray, Vector3D firstAxis, Vector3D secondAxis, Vector3D planeOrigin)
+        {
+            if (!Vector3D.ArePerpendicular(firstAxis, secondAxis))
+                throw new ArgumentException("First and Second axis should be perpendicular.");
+
+            Vector3D o = ray.Origin;
+            Vector3D p = planeOrigin;
+            Vector3D n = Vector3D.Cross(firstAxis, secondAxis).Normalize();
+            Vector3D d = ray.Direction;
+
+            float lamda = Vector3D.Dot(p - o, n) / Vector3D.Dot(d, n);
+
+            if (lamda >= 0)
+            {
+                Vector3D poc = o + (d * lamda);
+
+                Vector3D r = poc - planeOrigin;
+
+                float firstAxisProjectionLength = Vector3D.Dot(r, firstAxis) / firstAxis.Magnitude();
+                float secondAxisProjectionLength = Vector3D.Dot(r, secondAxis) / secondAxis.Magnitude();
+
+                if (firstAxisProjectionLength < 0 || secondAxisProjectionLength < 0)
+                    return null;
+
+                if (firstAxisProjectionLength <= firstAxis.Magnitude() && secondAxisProjectionLength <= secondAxis.Magnitude())
+                    return poc;
+
+                return null;
+
+            }
+            else
+                return null;
+        }
     }
 }

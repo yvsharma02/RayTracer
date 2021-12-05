@@ -26,12 +26,31 @@
         private Vector3D cam_buttomRight;
         private Vector3D cam_buttomLeft;
 
+        private RTColor noHitColor;
+        private RTColor bounceLimitColor;
+
         private int bounceLimit;
         public int BounceLimit
         {
             get
             {
                 return bounceLimit;
+            }
+        }
+
+        public RTColor NoHitColor
+        {
+            get
+            {
+                return noHitColor;
+            }
+        }
+
+        public RTColor BounceLimitColor
+        {
+            get
+            {
+                return bounceLimitColor;
             }
         }
 
@@ -51,7 +70,7 @@
             }
         }
 
-        public Camera(Vector3D xal, Vector3D yal, Vector3D aip, Vector3D ep, float xas, float yas, float rotation, Int2D res, Int2D rpp, int bounceLimit)
+        public Camera(Vector3D xal, Vector3D yal, Vector3D aip, Vector3D ep, float xas, float yas, float rotation, Int2D res, Int2D rpp, int bounceLimit, RTColor noHitColor, RTColor bounceLimitColor)
         {
             xal = xal.Normalize();
             yal = yal.Normalize();
@@ -69,6 +88,8 @@
             this.rotation = rotation;
             this.raysPerPixel = rpp;
             this.bounceLimit = bounceLimit;
+            this.noHitColor = noHitColor;
+            this.bounceLimitColor = bounceLimitColor;
 
             Initialise();
         }

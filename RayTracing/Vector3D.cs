@@ -2,11 +2,28 @@
 {
     public struct Vector3D
     {
-        private const float DOT_ZERO_ERROR_RANGE = 0.001f;
+        public const float EPSILON = 0.001f;
 
         public readonly float x;
         public readonly float y;
         public readonly float z;
+
+        public bool IsInfinity
+        {
+            get
+            {
+                return x == float.PositiveInfinity || x == float.NegativeInfinity || y == float.PositiveInfinity || y == float.NegativeInfinity || z == float.PositiveInfinity || z == float.NegativeInfinity;
+            }
+        }
+
+        public bool IsZero
+        {
+            get
+            {
+                // Check in epsilon range?
+                return x == 0 && y == 0 && z == 0;
+            }
+        }
 
         public Vector3D()
         {
@@ -63,7 +80,7 @@
 
         public static bool ArePerpendicular(Vector3D a, Vector3D b)
         {
-            return Math.Abs(Vector3D.Dot(a, b)) <= DOT_ZERO_ERROR_RANGE;
+            return Math.Abs(Vector3D.Dot(a, b)) <= EPSILON;
         }
 
         public static Vector3D Cross(Vector3D a, Vector3D b)

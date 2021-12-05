@@ -38,5 +38,16 @@
         {
             return MathUtil.RaySpherePointOfContact(ray, Position, HitRadius);
         }
+
+        public override RTRay[] ReachingRays(World world, Vector3D point)
+        {
+            Vector3D dirFromPointToLight = Position - point;
+
+            Shape closestShapeToPoint = world.ClosestShapeHit(new Ray(point, dirFromPointToLight), out Vector3D poc);
+            if (closestShapeToPoint != null)
+                return new RTRay[] { new RTRay(Position, dirFromPointToLight * -1f, LightColor, point) };
+            else
+                return new RTRay[] { new RTRay(Position, dirFromPointToLight * -1f, RTColor.Black, point) };
+        }
     }
 }

@@ -2,7 +2,7 @@
 {
     public class SphereShape : Shape
     {
-        private readonly Func<RTColor, Ray, Vector3D, RTColor> BounceColorCalculator;
+        private readonly Func<RTRay[][], Vector3D, RTColor> BounceColorCalculator;
 
         public readonly float Radius;
         public Vector3D Center
@@ -13,7 +13,7 @@
             }
         }
 
-        public SphereShape(Vector3D center, float radius, Func<RTColor, Ray, Vector3D, RTColor> bounceColorCalculator) : base(center)
+        public SphereShape(Vector3D center, float radius, Func<RTRay[][], Vector3D, RTColor> bounceColorCalculator) : base(center)
         {
             this.BounceColorCalculator = bounceColorCalculator;
             this.Radius = radius;
@@ -24,9 +24,9 @@
             return (pointOfContact - Position).Normalize();
         }
 
-        public override RTColor CalculateBouncedRayColor(RTColor sourceColor, Ray sourceRay, Vector3D pointOfContact)
+        public override RTColor CalculateBouncedRayColor(RTRay[][] incidentRays, Vector3D outRayDir)
         {
-            return BounceColorCalculator(sourceColor, sourceRay, pointOfContact);
+            return BounceColorCalculator(incidentRays, outRayDir);
         }
 
         protected override Vector3D? CalculateRayContactPosition(Ray ray)

@@ -7,7 +7,7 @@
 
         }
 
-        public abstract RTColor CalculateBouncedRayColor(RTColor sourceColor, Ray sourceRay, Vector3D pointOfContact);
+        public abstract RTColor CalculateBouncedRayColor(RTRay[][] hittingRays, Vector3D outRayDir);
 
         public abstract Vector3D CalculateNormal(Vector3D pointOfContact);
 

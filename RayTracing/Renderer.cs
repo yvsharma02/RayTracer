@@ -17,7 +17,7 @@ namespace RayTracing
             this.outputLocation = saveLocation;
         }
 
-        public void Render(bool useMultithreading)
+        public void Render(bool useMultithreading, bool advanceTrace)
         {
             bool completed = false;
 
@@ -34,7 +34,7 @@ namespace RayTracing
                 bmp.Save(outputLocation);
                 Log.InfoLine("Image written to disk in {0}ms", (DateTime.Now - writeTimeStart).TotalMilliseconds);
                 completed = true;
-            }, useMultithreading);
+            }, useMultithreading, advanceTrace);
 
             while (!completed)
                 Thread.Sleep(SLEEP_MS);
@@ -42,7 +42,7 @@ namespace RayTracing
         }
 
         // DateTime refers to the time render was started.
-        private void StartRender(System.Action<System.Drawing.Color[,], DateTime> onComplete, bool multiThreadded)
+        private void StartRender(System.Action<System.Drawing.Color[,], DateTime> onComplete, bool multiThreadded, bool advanceTrace)
         {
             DateTime startTime = DateTime.Now;
 
@@ -76,7 +76,7 @@ namespace RayTracing
                     ThreadStart workerThreadFunction = () =>
                     {
                         Log.InfoLine("Starting Chunk ({0}, {1}) Render", x, y);
-                        chunkRenderes[x, y].Render((clrs, chunkStartTime, worldRendered, bs, be) =>
+                        chunkRenderes[x, y].Render(advanceTrace, (clrs, chunkStartTime, worldRendered, bs, be) =>
                         {
                             completedList[x, y] = true;
 

@@ -12,5 +12,7 @@
         public override bool IsLightSource => true;
 
         public abstract float CalculateMultiplier(Ray reverseRay);
+
+        public abstract RTRay[] ReachingRays(World world, Vector3D point);
     }
 }
