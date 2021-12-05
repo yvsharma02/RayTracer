@@ -24,8 +24,14 @@
         {
             int count = 0;
 
+            float totalIntensity = 0f;
+
             for (int i = 0; i < clrs.Length; i++)
+            {
                 count += clrs[i].Length;
+                for (int j = 0; j < clrs[i].Length; j++)
+                    totalIntensity += clrs[i][j].DestinationColor.Intensity;
+            }
 
             float _i = 0f, r = 0f, g = 0f, b = 0f;
 
@@ -35,32 +41,15 @@
                 {
                     RTRay ray = clrs[i][j];
 
-                    float finalIntensity = 0f;
-
-                    if (!ray.Origin.IsInfinity)
-                    {
-                        float dist = ray.Origin.DistanceFrom(ray.PointOfContact.Value);
-
-                        finalIntensity = ray.SourceColor.Intensity / (dist * dist);
-
-                        if (finalIntensity >= 255f)
-                            finalIntensity = 255f;
-                    }
-                    else
-                    {
-                        finalIntensity = ray.SourceColor.Intensity;
-                    }
-
-                    _i += finalIntensity;
-                    r += (ray.SourceColor.R / ((float)count));
-                    g += (ray.SourceColor.G / ((float)count));
-                    b += (ray.SourceColor.B / ((float)count));
+                    _i += ray.DestinationColor.Intensity;
+                    r += ray.SourceColor.R * (ray.DestinationColor.Intensity / totalIntensity);
+                    g += ray.SourceColor.G * (ray.DestinationColor.Intensity / totalIntensity);
+                    b += ray.SourceColor.B * (ray.DestinationColor.Intensity / totalIntensity);
                 }
             }
 
             return new RTColor(_i / iDiv, r / rDiv, g / gDiv, b / bDiv);
         }
-
 
         public TestScene()
         {
@@ -82,11 +71,12 @@
 
             world.SetMainCamera(camera);
 
-//            GlobalLight globalLight = new GlobalLight(new Vector3D(0f, 100f, 0f), new Vector3D(-0.0001f, 0, 0), new Vector3D(0, -0.0004f, -0.0001f), new Int2D(4, 4), new RTColor(255, 255, 255, 255));
-            GlobalLight globalLight1 = new GlobalLight(new Vector3D(0f, 100f, 0f), new Vector3D(0f, 0, 0.0001f), new Vector3D(-0.0001f, -0.0004f, 0f), new Int2D(4, 4), new RTColor(255, 255, 255, 255));
+////            GlobalLight globalLight = new GlobalLight(new Vector3D(0f, 100f, 0f), new Vector3D(-0.0001f, 0, 0), new Vector3D(0, -0.0004f, -0.0001f), new Int2D(4, 4), new RTColor(255, 255, 255, 255));
+            GlobalLight globalLight1 = new GlobalLight(new Vector3D(0f, 100f, 0f), new Vector3D(0f, 0, 0.0001f), new Vector3D(-0.0001f, -0.0004f, 0f), new Int2D(4, 4), new RTColor(RTColor.MAX_INTENSITY, 255, 255, 255));
+            PointLight pointLight = new PointLight(new RTColor(RTColor.MAX_INTENSITY, 255, 123, 255), new Vector3D(8.5f, 1.5f, 1f));
 
-//            world.AddLightSource(globalLight);
             world.AddLightSource(globalLight1);
+            world.AddLightSource(pointLight);
 
             world.AddShape(new SphereShape(new Vector3D(7f, 1.75f, 1f), 1f, (clrs, dir) =>
             {

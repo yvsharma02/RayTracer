@@ -4,15 +4,18 @@ namespace RayTracing
 {
     public struct RTColor
     {
+        public const float MAX_INTENSITY = 10000f;
+
         public static readonly RTColor Black = new RTColor(0, 0, 0, 0);
 
-        private readonly int irgb;
+        private readonly float intensity;
+        private readonly int rgb;
 
-        public int Intensity
+        public float Intensity
         {
             get
             {
-                return irgb >> 24 & (0x00FF);
+                return intensity;
             }
         }
 
@@ -20,7 +23,7 @@ namespace RayTracing
         {
             get
             {
-                return irgb >> 16 & (0x00FF);
+                return rgb >> 16 & (0x00FF);
             }
         }
 
@@ -28,7 +31,7 @@ namespace RayTracing
         {
             get
             {
-                return irgb >> 8 & (0x00FF);
+                return rgb >> 8 & (0x00FF);
             }
         }
 
@@ -36,7 +39,7 @@ namespace RayTracing
         {
             get
             {
-                return irgb & (0x00FF);
+                return rgb & (0x00FF);
             }
         }
 
@@ -96,9 +99,9 @@ namespace RayTracing
 
         public System.Drawing.Color ToARGB()
         {
-            float r = (Intensity / 255f) * R;
-            float g = (Intensity / 255f) * G;
-            float b = (Intensity / 255f) * B;
+            float r = (Intensity / MAX_INTENSITY) * R;
+            float g = (Intensity / MAX_INTENSITY) * G;
+            float b = (Intensity / MAX_INTENSITY) * B;
 
             return System.Drawing.Color.FromArgb(255, (int)r, (int)g, (int)b);
         }
@@ -108,12 +111,13 @@ namespace RayTracing
             return new RTColor(clr.Intensity * multiplier, clr.R, clr.G, clr.B);
         }
 
-        public RTColor(int intensity, int r, int g, int b)
+        public RTColor(float intensity, int r, int g, int b)
         {
-            if (intensity > 255)
-                intensity = 255;
+            if (intensity > MAX_INTENSITY)
+                intensity = MAX_INTENSITY;
 
-            irgb = (intensity << 24) | (r << 16) | (g << 8) | b;
+            this.intensity = intensity;
+            rgb = (r << 16) | (g << 8) | b;
         }
 
         public RTColor(float intensity, float r, float g, float b) : this((int) intensity, (int) r, (int) g, (int) b) {}
@@ -134,7 +138,7 @@ namespace RayTracing
                 return false;
             RTColor other = (RTColor) obj;
 
-            return other.irgb == irgb;
+            return other.rgb == rgb && other.Intensity == Intensity;
         }
 
     }
