@@ -4,7 +4,7 @@ namespace RayTracing
 {
     public struct RTColor
     {
-        public const float MAX_INTENSITY = 10000f;
+        public const float MAX_INTENSITY = 1000000f;
 
         public static readonly RTColor Black = new RTColor(0, 0, 0, 0);
 

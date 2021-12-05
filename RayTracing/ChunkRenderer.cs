@@ -114,18 +114,20 @@
             if (closestShape != null)
             {
                 Vector3D normal = closestShape.CalculateNormal(closestShapePOC);
-                Vector3D reflectedRayDir = CalculateReflectedRayDirection(originalReverseRay.Direction, normal);
                 pointOfContact = closestShapePOC + (normal * Vector3D.EPSILON);
+                RTRay[][] hittingRays = new RTRay[world.LightSourcesCount + (bouncesRemaining >= 0 ? 1 : 0)][];
+                int c = 0;
 
-                RTRay[][] hittingRays = new RTRay[world.LightSourcesCount + 1][];
-
-                Vector3D actualSrc;
-                RTColor reflectedRayClr = TraceAdvance(world, renderCamera, bouncesRemaining - 1, new Ray(pointOfContact, reflectedRayDir), out actualSrc);
+                if (bouncesRemaining >= 0)
+                {
+                    Vector3D reflectedRayDir = CalculateReflectedRayDirection(originalReverseRay.Direction, normal);
+                    Vector3D actualSrc;
+                    RTColor reflectedRayColor = TraceAdvance(world, renderCamera, bouncesRemaining - 1, new Ray(pointOfContact, reflectedRayDir), out actualSrc);
+                    hittingRays[c++] = new RTRay[] { new RTRay(actualSrc, reflectedRayDir * -1f, reflectedRayColor, pointOfContact) };
+                }
 
                 for (int i = 0; i < world.LightSourcesCount; i++)
-                    hittingRays[i] = world.GetLightSource(i).ReachingRays(world, pointOfContact);
-
-                hittingRays[world.LightSourcesCount] = new RTRay[] { new RTRay(actualSrc, reflectedRayDir * -1f, reflectedRayClr, pointOfContact) };
+                    hittingRays[c++] = world.GetLightSource(i).ReachingRays(world, pointOfContact);
 
                 return closestShape.CalculateBouncedRayColor(hittingRays, originalReverseRay.Direction * -1f);
             }

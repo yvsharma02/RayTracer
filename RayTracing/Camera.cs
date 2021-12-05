@@ -70,7 +70,7 @@
             }
         }
 
-        public Camera(Vector3D xal, Vector3D yal, Vector3D aip, Vector3D ep, float xas, float yas, float rotation, Int2D res, Int2D rpp, int bounceLimit, RTColor noHitColor, RTColor bounceLimitColor)
+        public Camera(Vector3D xal, Vector3D yal, Vector3D aip, Vector3D ep, float xas, float yas, float rotation, Int2D res, Int2D rpp, int bounceLimit, RTColor noHitColor)
         {
             xal = xal.Normalize();
             yal = yal.Normalize();
@@ -89,7 +89,6 @@
             this.raysPerPixel = rpp;
             this.bounceLimit = bounceLimit;
             this.noHitColor = noHitColor;
-            this.bounceLimitColor = bounceLimitColor;
 
             Initialise();
         }

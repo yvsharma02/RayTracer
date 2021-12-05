@@ -7,16 +7,16 @@
 
         private const string SAVE_LOCATION = @"D:\Projects\VisualStudio\RayTracing\Generated";
 
-        private const int CHUNKS_X = 8;
-        private const int CHUNKS_Y = 8;
+        private const int CHUNKS_X = 16;
+        private const int CHUNKS_Y = 16;
 
         private const int RES_X = 1024;
         private const int RES_Y = 1024;
 
-        private const int RAYS_PER_PIXEL_X = 4;
-        private const int RAYS_PER_PIXEL_Y = 4;
+        private const int RAYS_PER_PIXEL_X = 2;
+        private const int RAYS_PER_PIXEL_Y = 2;
 
-        private const int BOUCES = 8;
+        private const int BOUCES = 4;
 
         private World world;
 
@@ -55,38 +55,40 @@
         {
             world = new World(null, null);
 
+            Vector3D PlaneAxis1 = new Vector3D(0, 0, 50);
+            Vector3D PlaneAxis2 = new Vector3D(50, 0, 0);
+
+            int lightCountX = 5;
+            int lightCountY = 5;
+
+            float lightHeight = 3f;
+
             Camera camera = new Camera(
                 new Vector3D(1, 0, 0),
-                new Vector3D(0, 1f, .2f),
-                new Vector3D(-10, -10, 5),
-                new Vector3D(0, 5, 25),
-                25,
-                25,
+                new Vector3D(0, 1f, 1f),
+                new Vector3D(-15, -15, 0),
+                new Vector3D(25, 50, -25),
+                75,
+                75,
                 0,
                 new Int2D(RES_X, RES_Y),
                 new Int2D(RAYS_PER_PIXEL_X, RAYS_PER_PIXEL_Y),
                 BOUCES,
-                new RTColor(),
-                new RTColor());
+                new RTColor(RTColor.MAX_INTENSITY / 3, 123, 123, 123));
 
             world.SetMainCamera(camera);
 
-////            GlobalLight globalLight = new GlobalLight(new Vector3D(0f, 100f, 0f), new Vector3D(-0.0001f, 0, 0), new Vector3D(0, -0.0004f, -0.0001f), new Int2D(4, 4), new RTColor(255, 255, 255, 255));
-            GlobalLight globalLight1 = new GlobalLight(new Vector3D(0f, 100f, 0f), new Vector3D(0f, 0, 0.0001f), new Vector3D(-0.0001f, -0.0004f, 0f), new Int2D(4, 4), new RTColor(RTColor.MAX_INTENSITY, 255, 255, 255));
-            PointLight pointLight = new PointLight(new RTColor(RTColor.MAX_INTENSITY, 255, 123, 255), new Vector3D(8.5f, 1.5f, 1f));
-
-            world.AddLightSource(globalLight1);
-            world.AddLightSource(pointLight);
-
-            world.AddShape(new SphereShape(new Vector3D(7f, 1.75f, 1f), 1f, (clrs, dir) =>
+            world.AddShape(new PlaneShape(new Vector3D(), PlaneAxis1, PlaneAxis2, (rays, outDir) =>
             {
-                return CalculateColor(clrs, 1f, 1.5f, 1.5f, 1.5f);
+                return CalculateColor(rays, 1f, 1f, 1f, 1f);
             }));
 
-            world.AddShape(new PlaneShape(new Vector3D(-10, 0.6f, -10), new Vector3D(0, 0, 1) * 50, new Vector3D(1, 0, 0) * 50, (clrs, dir) =>
-            {
-                return CalculateColor(clrs, 1f, 1f, 1f, 1f);
-            }));
+            RTColor sunColor = new RTColor(RTColor.MAX_INTENSITY, 255, 250, 242);
+            Vector3D sunAxis1 = new Vector3D(0.0001f, 0, 0);
+            Vector3D sunAxis2 = new Vector3D(0, -0.0001f, 0.0001f);
+
+            world.AddLightSource(new GlobalLight(new Vector3D(0, 100, 0), sunAxis1, sunAxis2, new Int2D(4, 4), sunColor));
+            world.AddShape(new SphereShape((PlaneAxis1 + PlaneAxis2) / 2 + new Vector3D(0, 1.5f, 0), 1, (rays, dir) => { return CalculateColor(rays, 1, 1, 1, 1); }));
         }
 
         public void Render()

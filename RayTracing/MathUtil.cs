@@ -63,6 +63,14 @@
             return o + (d * realRoot);
         }
 
+        public static bool PointInPlane(Vector3D pointToCheck, Vector3D planeNormal, Vector3D pointInPlane)
+        {
+            planeNormal = planeNormal.Normalize();
+            float d = Vector3D.Dot(planeNormal, pointInPlane);
+
+            return Math.Abs(Vector3D.Dot(pointToCheck, planeNormal) - d) <= Vector3D.EPSILON;
+        }
+
         public static Vector3D? RayPlaneContact(Ray ray, Vector3D firstAxis, Vector3D secondAxis, Vector3D planeOrigin)
         {
             if (!Vector3D.ArePerpendicular(firstAxis, secondAxis))

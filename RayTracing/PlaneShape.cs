@@ -15,7 +15,6 @@
             if (!Vector3D.ArePerpendicular(firstAxisSize, secondAxisSize))
                 throw new ArgumentException("Both axis should be perpendicular");
 
-            this.normalVector = normalVector.Normalize();
             this.BouceColorCalculator = colorProcessor;
 
             this.firstAxis = firstAxisSize;
