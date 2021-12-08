@@ -35,7 +35,7 @@
 
         protected override Vector3D? CalculateRayContactPosition(Ray ray)
         {
-            return MathUtil.RayPlaneContact(ray, firstAxis, secondAxis, Position);
+            return MathUtil.RayPlaneContact(ray, firstAxis, secondAxis, Position, true);
         }
 
     }

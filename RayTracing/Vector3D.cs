@@ -68,6 +68,26 @@
             return Distance(this, other);
         }
 
+        public override string ToString()
+        {
+            return String.Format("({0}, {1}, {2})", x.ToString(), y.ToString(), z.ToString());
+        }
+
+        public float this[int dimension]
+        {
+            get
+            {
+                if (dimension == 0)
+                    return x;
+                else if (dimension == 1)
+                    return y;
+                else if (dimension == 2)
+                    return z;
+
+                throw new IndexOutOfRangeException("dimension");
+            }
+        }
+
         public static float Distance(Vector3D a, Vector3D b)
         {
             return (float) Math.Sqrt((a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y) + (a.z - b.z) * (a.z - b.z));

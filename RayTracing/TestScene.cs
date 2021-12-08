@@ -13,8 +13,8 @@
         private const int RES_X = 1024;
         private const int RES_Y = 1024;
 
-        private const int RAYS_PER_PIXEL_X = 2;
-        private const int RAYS_PER_PIXEL_Y = 2;
+        private const int RAYS_PER_PIXEL_X = 4;
+        private const int RAYS_PER_PIXEL_Y = 4;
 
         private const int BOUCES = 4;
 
@@ -65,9 +65,9 @@
 
             Camera camera = new Camera(
                 new Vector3D(1, 0, 0),
-                new Vector3D(0, 1f, 1f),
+                new Vector3D(0, 1f, 0f),
                 new Vector3D(-15, -15, 0),
-                new Vector3D(25, 50, -25),
+                new Vector3D(25, 25, -25),
                 75,
                 75,
                 0,
@@ -77,18 +77,28 @@
                 new RTColor(RTColor.MAX_INTENSITY / 3, 123, 123, 123));
 
             world.SetMainCamera(camera);
-
+            /*
             world.AddShape(new PlaneShape(new Vector3D(), PlaneAxis1, PlaneAxis2, (rays, outDir) =>
             {
                 return CalculateColor(rays, 1f, 1f, 1f, 1f);
             }));
+            */
+            Vector3D v1 = new Vector3D(0, 0, 0);
+            Vector3D v2 = new Vector3D(0, 1, 0);
+            Vector3D v3 = new Vector3D(1, 0, 1);
 
+            world.AddShape(new TriangleShape(v1, v2, v3, (rays, dir) => { return CalculateColor(rays, 1, 1, 1, 1); }));
+            world.AddShape(new SphereShape(v1, 0.1f, (rays, dir) => { return CalculateColor(rays, 1, 1, 1, 1); }));
+            world.AddShape(new SphereShape(v2, 0.1f, (rays, dir) => { return CalculateColor(rays, 1, 1, 1, 1); }));
+            world.AddShape(new SphereShape(v3, 0.1f, (rays, dir) => { return CalculateColor(rays, 1, 1, 1, 1); }));
+
+            world.AddShape(new SphereShape((v1 + v2 + v3) / 3f, 0.1f, (rays, dir) => { return CalculateColor(rays, 1, 1, 1, 1); }));
             RTColor sunColor = new RTColor(RTColor.MAX_INTENSITY, 255, 250, 242);
             Vector3D sunAxis1 = new Vector3D(0.0001f, 0, 0);
             Vector3D sunAxis2 = new Vector3D(0, -0.0001f, 0.0001f);
 
             world.AddLightSource(new GlobalLight(new Vector3D(0, 100, 0), sunAxis1, sunAxis2, new Int2D(4, 4), sunColor));
-            world.AddShape(new SphereShape((PlaneAxis1 + PlaneAxis2) / 2 + new Vector3D(0, 1.5f, 0), 1, (rays, dir) => { return CalculateColor(rays, 1, 1, 1, 1); }));
+            world.AddShape(new SphereShape((PlaneAxis1 + PlaneAxis2) / 2f + new Vector3D(0, 1.5f, 0), 1, (rays, dir) => { return CalculateColor(rays, 1, 1, 1, 1); }));
         }
 
         public void Render()
