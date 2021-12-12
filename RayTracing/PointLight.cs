@@ -26,28 +26,28 @@
 
         public override bool HitsRay(Ray ray, out Vector3D pointOfContact)
         {
-            return MathUtil.RayHitsSphere(ray, Position, HitRadius, out pointOfContact);
+            return RTMath.RayHitsSphere(ray, Position, HitRadius, out pointOfContact);
         }
 
         public override bool HitsRay(Ray ray)
         {
-            return MathUtil.RayHitsSphere(ray, Position, HitRadius);
+            return RTMath.RayHitsSphere(ray, Position, HitRadius);
         }
 
         protected override Vector3D? CalculateRayContactPosition(Ray ray)
         {
-            return MathUtil.RaySpherePointOfContact(ray, Position, HitRadius);
+            return RTMath.RaySpherePointOfContact(ray, Position, HitRadius);
         }
 
-        public override RTRay[] ReachingRays(World world, Vector3D point)
+        public override ColoredRay[] ReachingRays(World world, Vector3D point)
         {
             Vector3D dirFromPointToLight = Position - point;
 
             Shape closestShapeToPoint = world.ClosestShapeHit(new Ray(point, dirFromPointToLight), out Vector3D poc);
             if (closestShapeToPoint == null || poc.DistanceFrom(point) >= poc.DistanceFrom(Position))
-                return new RTRay[] { new RTRay(Position, dirFromPointToLight * -1f, LightColor, point) };
+                return new ColoredRay[] { new ColoredRay(Position, dirFromPointToLight * -1f, LightColor, point) };
             else
-                return new RTRay[] { new RTRay(Position, dirFromPointToLight * -1f, RTColor.Black, point) };
+                return new ColoredRay[] { new ColoredRay(Position, dirFromPointToLight * -1f, RTColor.Black, point) };
         }
     }
 }

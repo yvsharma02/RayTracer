@@ -2,20 +2,16 @@
 {
     public class PlaneShape : Shape
     {
-        private System.Func<RTRay[][], Vector3D, RTColor> BouceColorCalculator;
-
         private Vector3D normalVector;
 
         private Vector3D firstAxis;
         private Vector3D secondAxis;
 
         // Size extends in both positive and negative direction.
-        public PlaneShape(Vector3D center, Vector3D firstAxisSize, Vector3D secondAxisSize, System.Func<RTRay[][], Vector3D, RTColor> colorProcessor) : base(center)
+        public PlaneShape(Vector3D axisIntersection, Vector3D firstAxisSize, Vector3D secondAxisSize, ShapeShader shader) : base(axisIntersection, shader)
         {
             if (!Vector3D.ArePerpendicular(firstAxisSize, secondAxisSize))
                 throw new ArgumentException("Both axis should be perpendicular");
-
-            this.BouceColorCalculator = colorProcessor;
 
             this.firstAxis = firstAxisSize;
             this.secondAxis = secondAxisSize;
@@ -23,19 +19,24 @@
             this.normalVector = Vector3D.Cross(firstAxisSize, secondAxisSize).Normalize();
         }
 
-        public override RTColor CalculateBouncedRayColor(RTRay[][] incidentRays, Vector3D outRayDir)
-        {
-            return BouceColorCalculator(incidentRays, outRayDir);
-        }
-
         public override Vector3D CalculateNormal(Vector3D pointOfContact)
         {
             return normalVector;
         }
 
+        public override Int2D POCToTexturePixelIndex(Vector3D pointOfContact, Int2D textureDimension)
+        {
+            float f = (RTMath.LinePointDistance(Position, firstAxis, pointOfContact) / secondAxis.Magnitude());
+
+            int x = ((int) ((RTMath.LinePointDistance(Position, firstAxis, pointOfContact - Position) / secondAxis.Magnitude()) * textureDimension.x));
+            int y = ((int) ((RTMath.LinePointDistance(Position, secondAxis, pointOfContact - Position) / firstAxis.Magnitude()) * textureDimension.y));
+
+            return new Int2D(x, y);
+        }
+
         protected override Vector3D? CalculateRayContactPosition(Ray ray)
         {
-            return MathUtil.RayPlaneContact(ray, firstAxis, secondAxis, Position, true);
+            return RTMath.RayPlaneContact(ray, firstAxis, secondAxis, Position, true);
         }
 
     }

@@ -13,6 +13,6 @@
 
         public abstract float CalculateMultiplier(Ray reverseRay);
 
-        public abstract RTRay[] ReachingRays(World world, Vector3D point);
+        public abstract ColoredRay[] ReachingRays(World world, Vector3D point);
     }
 }

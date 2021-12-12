@@ -2,7 +2,7 @@
 {
     public struct Vector3D
     {
-        public const float EPSILON = 0.001f;
+        public const float EPSILON = 0.00001f;
 
         public readonly float x;
         public readonly float y;

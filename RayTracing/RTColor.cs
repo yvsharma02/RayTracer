@@ -4,14 +4,14 @@ namespace RayTracing
 {
     public struct RTColor
     {
-        public const float MAX_INTENSITY = 1000000f;
+        public const double MAX_INTENSITY = 100;
 
         public static readonly RTColor Black = new RTColor(0, 0, 0, 0);
 
-        private readonly float intensity;
+        private readonly double intensity;
         private readonly int rgb;
 
-        public float Intensity
+        public double Intensity
         {
             get
             {
@@ -52,11 +52,12 @@ namespace RayTracing
 
         public static RTColor Average(params RTColor[] clrs)
         {
-            float _i = 0f, r = 0f, g = 0f, b = 0f;
+            double _i = 0f;
+            float r = 0f, g = 0f, b = 0f;
 
             for (int i = 0; i < clrs.Length; i++)
             {
-                _i += clrs[i].Intensity / ((float) clrs.Length);
+                _i += clrs[i].Intensity / ((double) clrs.Length);
                 r += clrs[i].R / ((float)clrs.Length);
                 g += clrs[i].G / ((float)clrs.Length);
                 b += clrs[i].B / ((float)clrs.Length);
@@ -71,13 +72,14 @@ namespace RayTracing
             for (int i = 0; i < clrs.Length; i++)
                 count += clrs[i].Length;
 
-            float _i = 0f, r = 0f, g = 0f, b = 0f;
+            double _i = 0f;
+            float r = 0f, g = 0f, b = 0f;
 
             for (int i = 0; i < clrs.GetLength(0); i++)
             {
                 for (int j = 0; j < clrs[i].Length; j++)
                 {
-                    _i += clrs[i][j].Intensity / ((float)count);
+                    _i += clrs[i][j].Intensity / ((double) count);
                     r += clrs[i][j].R / ((float)count);
                     g += clrs[i][j].G / ((float)count);
                     b += clrs[i][j].B / ((float)count);
@@ -89,19 +91,19 @@ namespace RayTracing
 
         public static RTColor Add(RTColor clrA, RTColor clrB)
         {
-            float i = clrA.Intensity + clrB.Intensity;
-            float r = 2 * (clrA.R * clrA.Intensity + clrB.R * clrB.Intensity) / i;
-            float g = 2 * (clrA.B * clrA.Intensity + clrB.B * clrB.Intensity) / i;
-            float b = 2 * (clrA.B * clrA.Intensity + clrB.B * clrB.Intensity) / i;
+            double i = clrA.Intensity + clrB.Intensity;
+            float r = (float) (2 * (clrA.R * clrA.Intensity + clrB.R * clrB.Intensity) / i);
+            float g = (float) (2 * (clrA.B * clrA.Intensity + clrB.B * clrB.Intensity) / i);
+            float b = (float) (2 * (clrA.B * clrA.Intensity + clrB.B * clrB.Intensity) / i);
 
             return new RTColor(i, r, g, b);
         }
 
         public System.Drawing.Color ToARGB()
         {
-            float r = (Intensity / MAX_INTENSITY) * R;
-            float g = (Intensity / MAX_INTENSITY) * G;
-            float b = (Intensity / MAX_INTENSITY) * B;
+            float r = (float) (Intensity / MAX_INTENSITY) * R;
+            float g = (float) (Intensity / MAX_INTENSITY) * G;
+            float b = (float) (Intensity / MAX_INTENSITY) * B;
 
             return System.Drawing.Color.FromArgb(255, (int)r, (int)g, (int)b);
         }
@@ -111,7 +113,7 @@ namespace RayTracing
             return new RTColor(clr.Intensity * multiplier, clr.R, clr.G, clr.B);
         }
 
-        public RTColor(float intensity, int r, int g, int b)
+        public RTColor(double intensity, int r, int g, int b)
         {
             if (intensity > MAX_INTENSITY)
                 intensity = MAX_INTENSITY;
@@ -120,7 +122,7 @@ namespace RayTracing
             rgb = (r << 16) | (g << 8) | b;
         }
 
-        public RTColor(float intensity, float r, float g, float b) : this((int) intensity, (int) r, (int) g, (int) b) {}
+        public RTColor(double intensity, float r, float g, float b) : this((int) intensity, (int) r, (int) g, (int) b) {}
 
         public static RTColor operator *(RTColor a, float multiplier)
         {

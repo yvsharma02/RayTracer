@@ -40,7 +40,7 @@
             return ray.Origin + ray.Direction * float.PositiveInfinity;
         }
 
-        public override RTRay[] ReachingRays(World world, Vector3D point)
+        public override ColoredRay[] ReachingRays(World world, Vector3D point)
         {
             Vector3D axisIntersection = point - (firstAxis / 2f) - (secondAxis / 2f);
 
@@ -65,8 +65,8 @@
                 }
             }
 
-            RTRay[] rays = new RTRay[1];
-            rays[0] = new RTRay(Direction * float.NegativeInfinity, Direction, new RTColor(LightColor.Intensity * ((float) hits / totalRayCount), LightColor.G, LightColor.B, LightColor.B), point);
+            ColoredRay[] rays = new ColoredRay[1];
+            rays[0] = new ColoredRay(Direction * float.NegativeInfinity, Direction, new RTColor(LightColor.Intensity * ((float) hits / totalRayCount), LightColor.G, LightColor.B, LightColor.B), point);
 
             return rays;
         }
