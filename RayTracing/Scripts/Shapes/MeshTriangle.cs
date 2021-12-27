@@ -49,7 +49,7 @@
 
             if (NormalTriangle.HasValue)
             {
-                Vector3D contribution = NormalTriangle.Value.CalculateBaycentricCoords(pointOfContact);
+                Vector3D contribution = VertexTriangle.CalculateBarycentricPoint(pointOfContact);
 
                 return NormalTriangle.Value[0] * contribution[0] + NormalTriangle.Value[1] * contribution[1] + NormalTriangle.Value[2] * contribution[2];
             }
@@ -63,9 +63,11 @@
             if (!HasCustomUVs)
                 throw new InvalidOperationException("Triangle does not have valid UVs.");
 
-            Vector2D contribution = UVTriangle.Value.CalculateBaycentricCoords(pointOfContact);
+            Vector3D contribution = VertexTriangle.CalculateBarycentricPoint(pointOfContact);
 
-            return UVTriangle.Value[0] * contribution[0] + UVTriangle.Value[1] * contribution[1] + UVTriangle.Value[2] * contribution[2];
+            Vector2D uv = UVTriangle.Value[0] * contribution[0] + UVTriangle.Value[1] * contribution[1] + UVTriangle.Value[2] * contribution[2];
+
+            return uv;
         }
 
         public Vector3D GetVertex(int index)

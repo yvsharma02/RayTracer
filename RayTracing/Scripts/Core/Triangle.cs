@@ -10,7 +10,7 @@
         public Vector3D Side0 => Point1 - Point0;
         public Vector3D Side1 => Point2 - Point0;
         public Vector3D Centroid => (Point0 + Point1 + Point2) / 3f;
-        public Vector3D AreaVector => Vector3D.Cross(Side0, Side1);
+        public Vector3D AreaVector => Vector3D.Cross(Side0, Side1) * 0.5f;
         public Vector3D Normal => AreaVector.Normalize();
         public float Area => AreaVector.Magnitude();
 
@@ -35,7 +35,7 @@
             }
         }
 
-        public Vector3D CalculateBaycentricCoords(Vector3D point)
+        public Vector3D CalculateBarycentricPoint(Vector3D point)
         {
             return RTMath.CalculateBaycentricCoords(this, point);
         }

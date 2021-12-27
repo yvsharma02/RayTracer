@@ -2,9 +2,8 @@
 {
     public class TestScene
     {
-        private const string TEST_MESH_LOCATION = @"D:\Projects\VisualStudio\RayTracing\Assets\IcoSphereRough.obj";
-
-         private const string PLANE_TEXTURE = @"D:\Projects\VisualStudio\RayTracing\Assets\TestTexture.png";
+        private const string TEST_MESH_LOCATION = @"D:\Projects\VisualStudio\RayTracing\Assets\TextureSphere.obj";
+        private const string TEST_TEXTURE_LOCATION = @"D:\Projects\VisualStudio\RayTracing\Assets\SphereTexture_Texture.png";
 
         private const bool MULTI_THREADING_ENABLED = true;
 
@@ -19,7 +18,7 @@
         private const int RAYS_PER_PIXEL_X = 1;
         private const int RAYS_PER_PIXEL_Y = 1;
 
-        private const int BOUCES = 0;
+        private const int BOUCES = 2;
 
         private World world;
 
@@ -33,7 +32,7 @@
         public TestScene()
         {
             Vector3D lightPos = new Vector3D(20, 0.5f, 0);
-            Vector3D spherePos = new Vector3D(21, -20f, 100);
+            Vector3D spherePos = new Vector3D(21, 0f, 100);
             world = new World(null, null);
 
             Camera camera = new Camera(
@@ -51,18 +50,20 @@
 
             world.SetMainCamera(camera);
 
-            DefaultShapeShader sphereShader = new DefaultShapeShader();
+            DefaultShapeShader meshShader = new DefaultShapeShader(TextureLoader.Load(TEST_TEXTURE_LOCATION));
 
-            RTColor sunColor = new RTColor(RTColor.MAX_INTENSITY, 230, 255, 222);
+            RTColor sunColor = new RTColor(RTColor.MAX_INTENSITY, 255, 255, 255);
             Vector3D sunAxis1 = new Vector3D(0.0001f, 0, 0f);
             Vector3D sunAxis2 = new Vector3D(0f, 0, 0.0001f);
 
             Vector3D v = Vector3D.Cross(sunAxis1, sunAxis2);
 
             MeshBuilder builder = MeshReader.ReadObj(TEST_MESH_LOCATION);
-            world.AddShape(builder.Build(spherePos, sphereShader, 15f));
+            world.AddShape(builder.Build(spherePos, meshShader, 15f));
 
+//            world.AddLightSource(new GlobalLight(new Vector3D(0, 100, 0), -sunAxis1, sunAxis2, new Int2D(2, 2), sunColor));
             world.AddLightSource(new GlobalLight(new Vector3D(0, 100, 0), sunAxis1, sunAxis2, new Int2D(2, 2), sunColor));
+            world.AddShape(new PlaneShape(new Vector3D(0, 0, 0), new Vector3D(100, 0, 0), new Vector3D(0, 0, 100), new DefaultShapeShader()));
         }
 
         public void Render()

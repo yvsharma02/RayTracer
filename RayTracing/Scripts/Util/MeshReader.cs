@@ -48,7 +48,7 @@ namespace RayTracing
 
                     float x = float.Parse(line.Substring(substringStartIndices[0] + 1, substringStartIndices[1] - substringStartIndices[0] - 1));
                     float y = float.Parse(line.Substring(substringStartIndices[1] + 1, substringStartIndices[2] - substringStartIndices[1] - 1));
-                    float z = float.Parse(line.Substring(substringStartIndices[2] + 1, substringStartIndices[3] - substringStartIndices[2] - 1));
+                    float z = -float.Parse(line.Substring(substringStartIndices[2] + 1, substringStartIndices[3] - substringStartIndices[2] - 1));
 
                     if (!areNormals)
                         vertices.AddLast(new Vector3D(x, y, z));
@@ -73,9 +73,10 @@ namespace RayTracing
                         else
                             spaceSeq = false;
                     }
-
+                    
+                    // 1 - y since blender takes coords from lower left. While in the program we have considered an 2D array (of colors)/texture sarting from upper left.
                     float x = float.Parse(line.Substring(substringStartIndices[0] + 1, substringStartIndices[1] - substringStartIndices[0] - 1));
-                    float y = float.Parse(line.Substring(substringStartIndices[1] + 1, (c == 3 ? substringStartIndices[2] : line.Length) - substringStartIndices[1] - 1));
+                    float y = 1f - float.Parse(line.Substring(substringStartIndices[1] + 1, (c == 3 ? substringStartIndices[2] : line.Length) - substringStartIndices[1] - 1));
 
                     uvs.AddLast(new Vector2D(x, y));
                 }
@@ -141,7 +142,7 @@ namespace RayTracing
                 }
             }
 
-            return new MeshBuilder() { vertices = vertices.ToArray(), uvs = uvs.ToArray(), uvTriangles = uvTriangles.ToArray(), vertexTriangles = triangles.ToArray(), normals = vertexNormals.ToArray(), normalTriangles = normalTriangles.ToArray()};
+            return new MeshBuilder() { vertices = vertices.ToArray<Vector3D>(), uvs = uvs.ToArray<Vector2D>(), uvTriangles = uvTriangles.ToArray<int>(), vertexTriangles = triangles.ToArray<int>(), normals = vertexNormals.ToArray<Vector3D>(), normalTriangles = normalTriangles.ToArray<int>()};
         }
     }
 }

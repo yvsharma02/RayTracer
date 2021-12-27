@@ -72,7 +72,7 @@
 
         public static Vector3D CalculateBaycentricCoords(Triangle triangle, Vector3D poc)
         {
-            float mainTriangleArea = triangle.AreaVector.Magnitude();
+            float mainTriangleArea = triangle.Area;
 
             Triangle[] subtriangles = new Triangle[]
             {

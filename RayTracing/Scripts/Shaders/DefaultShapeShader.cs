@@ -52,14 +52,14 @@
 
                 Vector2D uv = shape.CalculateUV(null, pointOfContact);
 
-                int x = (int)(uv.x * (TextureDimensions.x - 1));
-                int y = (int)(uv.y * (TextureDimensions.y - 1));
+                int x = (int)(uv.x * TextureDimensions.x);
+                int y = (int)(uv.y * TextureDimensions.y);
 
                 System.Drawing.Color color = MainTexture[x, y];
-
+                
                 r = (r + color.R) / 2f;
                 g = (g + color.G) / 2f;
-                r = (b + color.B) / 2f;
+                b = (b + color.B) / 2f;
             }
 
             return new RTColor(_i, r, g, b);

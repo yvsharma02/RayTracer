@@ -2,8 +2,8 @@
 {
     public class Mesh : Shape
     {
-        private Vector3D lowerBounds;
-        private Vector3D upperBounds;
+        public readonly Vector3D LowerBounds;
+        public readonly Vector3D UpperBounds;
 
         private MeshTriangle[] triangleShapes;
 
@@ -28,11 +28,10 @@
                     if (vertex[j] > maxBounds[j])
                         maxBounds[j] = vertex[j] + Vector3D.EPSILON;
                 }
-
             }
 
-            lowerBounds = new Vector3D(minBounds[0], minBounds[1], minBounds[2]);
-            upperBounds = new Vector3D(maxBounds[0], maxBounds[1], maxBounds[2]);
+            LowerBounds = new Vector3D(minBounds[0], minBounds[1], minBounds[2]);
+            UpperBounds = new Vector3D(maxBounds[0], maxBounds[1], maxBounds[2]);
 
             if (uvTriangles != null && uvTriangles.Length % 3 != 0)
                 throw new ArgumentException("Length of uv triangles array should be a multiple of 3.");
@@ -43,26 +42,8 @@
 
             for (int i = 0; i < triangleShapes.Length; i++)
             {
-                /*
-                int c = t;
-                Vector3D v0 = vertices[triangles[c++]];
-                Vector3D v1 = vertices[triangles[c++]];
-                Vector3D v2 = vertices[triangles[c++]];
-
-                c = t;
-                Vector3D n0 = validNormals ? normals[triangles[c++]] : default(Vector3D);
-                Vector3D n1 = validNormals ? normals[triangles[c++]] : default(Vector3D);
-                Vector3D n2 = validNormals ? normals[triangles[c++]] : default(Vector3D);
-
-                c = t;
-
-                Vector2D uv0 = validUVs ? uvs[uvTriangles[c++]] : default(Vector2D);
-                Vector2D uv1 = validUVs ? uvs[uvTriangles[c++]] : default(Vector2D);
-                Vector2D uv2 = validUVs ? uvs[uvTriangles[c++]] : default(Vector2D);
-                */
-
-                bool validNormals = normals != null && normalTriangles != null && t + 3 < normalTriangles.Length;
-                bool validUVs = uvs != null && uvTriangles != null && t + 3 < uvTriangles.Length;
+                bool validNormals = normals != null && normalTriangles != null && t + 2 < normalTriangles.Length;
+                bool validUVs = uvs != null && uvTriangles != null && t + 2 < uvTriangles.Length;
 
                 bool identicalNormals = validNormals ? normalTriangles[t] == normalTriangles[t + 1] && normalTriangles[t] == normalTriangles[t + 2] : false; 
 
@@ -85,7 +66,7 @@
 
         protected override Vector3D? CalculateRayContactPosition(Ray ray, out WorldObject subshape)
         {
-            Vector3D? boundsPOC = RTMath.RayBoundsContact(ray, lowerBounds, upperBounds);
+            Vector3D? boundsPOC = RTMath.RayBoundsContact(ray, LowerBounds, UpperBounds);
 
             if (!boundsPOC.HasValue)
             {
@@ -122,8 +103,6 @@
             MeshTriangle triangle = (MeshTriangle)shape;
 
             return triangle.CalculateUV(null, pointOfContact);
-//            Vector2D dirContributions = triangle.VertexTriangle.GetTriangleSideContribution(pointOfContact);
-//            Vector2D finalUV = (uvs[1] - uvs[0]) * dirContributions[0] + (uvs[2] - uvs[0]) * dirContributions[1];
 
         }
     }
