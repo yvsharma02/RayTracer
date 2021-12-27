@@ -24,14 +24,14 @@
             return normalVector;
         }
 
-        public override Int2D POCToTexturePixelIndex(Shape shape, Vector3D pointOfContact, Int2D textureDimension)
+        public override Vector2D CalculateUV(Shape shape, Vector3D pointOfContact)
         {
             float f = (RTMath.LinePointDistance(Position, firstAxis, pointOfContact) / secondAxis.Magnitude());
 
-            int x = ((int) ((RTMath.LinePointDistance(Position, firstAxis, pointOfContact - Position) / secondAxis.Magnitude()) * textureDimension.x));
-            int y = ((int) ((RTMath.LinePointDistance(Position, secondAxis, pointOfContact - Position) / firstAxis.Magnitude()) * textureDimension.y));
+            float x = RTMath.LinePointDistance(Position, firstAxis, pointOfContact - Position) / secondAxis.Magnitude();
+            float y = RTMath.LinePointDistance(Position, secondAxis, pointOfContact - Position) / firstAxis.Magnitude();
 
-            return new Int2D(x, y);
+            return new Vector2D(x, y);
         }
 
         protected override Vector3D? CalculateRayContactPosition(Ray ray, out WorldObject subshape)

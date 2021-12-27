@@ -3,30 +3,35 @@ using System.Text.RegularExpressions;
 
 namespace RayTracing
 {
-    public class ObjParser
+    public class MeshReader
     {
-        public static MeshBuilder ObjFileToMesh(String location)
+        public static MeshBuilder ReadObj(String location)
         {
             LinkedList<Vector3D> vertices = new LinkedList<Vector3D>();
             LinkedList<Vector2D> uvs = new LinkedList<Vector2D>();
+            LinkedList<Vector3D> vertexNormals = new LinkedList<Vector3D>();
 
             LinkedList<int> triangles = new LinkedList<int>();
             LinkedList<int> uvTriangles = new LinkedList<int>();
+            LinkedList<int> normalTriangles = new LinkedList<int>();
 
             String[] lines = File.ReadAllLines(location);
 
             bool uvLoadingFailed = false;
+            bool normalLoadingFailed = false;
 
             foreach (String line in lines)
             {
-                if (line.StartsWith("v "))
+                if (line.StartsWith("v ") || line.StartsWith("vn "))
                 {
-                    int[] substringStartIndices = new int[3];
+                    bool areNormals = line.StartsWith("vn ");
+
+                    int[] substringStartIndices = new int[4];
                     int c = 0;
 
                     bool spaceSeq = false;
 
-                    for (int i = 0; c < 3; i++)
+                    for (int i = 0; c < 4 && i < line.Length; i++)
                     {
                         if (line[i] == ' ')
                         {
@@ -37,11 +42,18 @@ namespace RayTracing
                         else
                             spaceSeq = false;
                     }
+
+                    if (c == 3)
+                        substringStartIndices[c++] = line.Length;
+
                     float x = float.Parse(line.Substring(substringStartIndices[0] + 1, substringStartIndices[1] - substringStartIndices[0] - 1));
                     float y = float.Parse(line.Substring(substringStartIndices[1] + 1, substringStartIndices[2] - substringStartIndices[1] - 1));
-                    float z = float.Parse(line.Substring(substringStartIndices[2] + 1));
+                    float z = float.Parse(line.Substring(substringStartIndices[2] + 1, substringStartIndices[3] - substringStartIndices[2] - 1));
 
-                    vertices.AddLast(new Vector3D(x, y, z));
+                    if (!areNormals)
+                        vertices.AddLast(new Vector3D(x, y, z));
+                    else
+                        vertexNormals.AddLast(new Vector3D(x, y, z).Normalize());
                 }
                 else if (line.StartsWith("vt "))
                 {
@@ -80,33 +92,56 @@ namespace RayTracing
                         triangles.AddLast(vertexIndex);
                     }
 
-                    if (uvLoadingFailed)
-                        continue;
-
-                    string uvRegex = @"\d\/.*?\/";
-
-                    rx = new Regex(uvRegex);
-                    matches = rx.Matches(line);
-
-                    try
+                    if (!uvLoadingFailed)
                     {
+                        string uvRegex = @"\d\/.*?\/";
 
-                        for (int i = 0; i < 3; i++)
+                        rx = new Regex(uvRegex);
+
+                        try
                         {
-                            String str = matches[i].Value;
-                            uvTriangles.AddLast(int.Parse(str.Substring(2, str.Length - 3)) - 1);
+                            matches = rx.Matches(line);
+
+                            for (int i = 0; i < 3; i++)
+                            {
+                                String str = matches[i].Value;
+                                uvTriangles.AddLast(int.Parse(str.Substring(2, str.Length - 3)) - 1);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            uvLoadingFailed = true;
+
+                            Log.InfoLine("Failed to load mesh UVs");
                         }
                     }
-                    catch (Exception ex)
-                    {
-                        uvLoadingFailed = true;
 
-                        Log.InfoLine("Failed to load mesh UVs");
+                    if (!normalLoadingFailed)
+                    {
+                        string normalRegex = @" \d*\/\d*\/\d*";
+                        rx = new Regex(normalRegex);
+
+                        try
+                        {
+                            matches = rx.Matches(line);
+
+                            for (int i = 0; i < 3; i++)
+                            {
+                                String str = matches[i].Value;
+
+                                normalTriangles.AddLast(int.Parse(str.Substring(str.LastIndexOf('/') + 1)) - 1);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            normalLoadingFailed = true;
+                            Log.InfoLine("Failed to load mesh normals.");
+                        }
                     }
                 }
             }
 
-            return new MeshBuilder() { vertices = vertices.ToArray(), uvs = uvs.ToArray(), uvTriangles = uvTriangles.ToArray(), vertexTriangles = triangles.ToArray() };
+            return new MeshBuilder() { vertices = vertices.ToArray(), uvs = uvs.ToArray(), uvTriangles = uvTriangles.ToArray(), vertexTriangles = triangles.ToArray(), normals = vertexNormals.ToArray(), normalTriangles = normalTriangles.ToArray()};
         }
     }
 }

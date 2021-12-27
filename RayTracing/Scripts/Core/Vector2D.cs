@@ -41,5 +41,26 @@
         {
             return a * (1f / b);
         }
+
+        public float this[int index]
+        {
+            get
+            {
+                if (index == 0) return this.x;
+                if (index == 1) return this.y;
+
+                throw new IndexOutOfRangeException();
+            }
+        }
+
+        public static implicit operator Vector3D(Vector2D v2d)
+        {
+            return new Vector3D(v2d.x, v2d.y, 0);
+        }
+
+        public static implicit operator Vector2D(Vector3D v3d)
+        {
+            return new Vector2D(v3d.x, v3d.y);
+        }
     }
 }

@@ -2,7 +2,7 @@
 {
     public class TestScene
     {
-        private const string TEST_MESH_LOCATION = @"D:\Projects\VisualStudio\RayTracing\Assets\GrenadeModel\GrenadeTris.obj";
+        private const string TEST_MESH_LOCATION = @"D:\Projects\VisualStudio\RayTracing\Assets\IcoSphereRough.obj";
 
          private const string PLANE_TEXTURE = @"D:\Projects\VisualStudio\RayTracing\Assets\TestTexture.png";
 
@@ -51,18 +51,15 @@
 
             world.SetMainCamera(camera);
 
-//            DefaultShapeShader planeShader = new DefaultShapeShader(TextureLoader.Load(PLANE_TEXTURE));
-
             DefaultShapeShader sphereShader = new DefaultShapeShader();
 
-            RTColor sunColor = new RTColor(RTColor.MAX_INTENSITY, 0, 255, 0);
-            Vector3D sunAxis1 = new Vector3D(0, 0, -0.001f);
-            Vector3D sunAxis2 = new Vector3D(0.001f, 0.003f, 0);
+            RTColor sunColor = new RTColor(RTColor.MAX_INTENSITY, 230, 255, 222);
+            Vector3D sunAxis1 = new Vector3D(0.0001f, 0, 0f);
+            Vector3D sunAxis2 = new Vector3D(0f, 0, 0.0001f);
 
             Vector3D v = Vector3D.Cross(sunAxis1, sunAxis2);
 
-            MeshBuilder builder = ObjParser.ObjFileToMesh(TEST_MESH_LOCATION);
-
+            MeshBuilder builder = MeshReader.ReadObj(TEST_MESH_LOCATION);
             world.AddShape(builder.Build(spherePos, sphereShader, 15f));
 
             world.AddLightSource(new GlobalLight(new Vector3D(0, 100, 0), sunAxis1, sunAxis2, new Int2D(2, 2), sunColor));

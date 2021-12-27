@@ -2,13 +2,13 @@
 {
     public static class RTMath
     {
-        public static bool LiesInsideTriangle(Vector3D point, bool checkIfPointLiesInPlane, Vector3D p0, Vector3D p1, Vector3D p2)
+        public static bool LiesInsideTriangle(Vector3D point, bool checkIfPointLiesInPlane, Triangle triangle)
         {
             Vector3D p = point;
 
-            p0 -= p;
-            p1 -= p;
-            p2 -= p;
+            Vector3D p0 = triangle.Point0 - p;
+            Vector3D p1 = triangle.Point1 - p;
+            Vector3D p2 = triangle.Point2 - p;
 
             p -= p;
 
@@ -68,6 +68,21 @@
                 return false;
 
             return Math.Abs(param) < Math.Abs(paramLimit);
+        }
+
+        public static Vector3D CalculateBaycentricCoords(Triangle triangle, Vector3D poc)
+        {
+            float mainTriangleArea = triangle.AreaVector.Magnitude();
+
+            Triangle[] subtriangles = new Triangle[]
+            {
+                new Triangle(triangle[0], triangle[1], poc), new Triangle(triangle[1], triangle[2], poc), new Triangle(triangle[2], triangle[0], poc)
+            };
+
+            // ith vertex will get the area ratio of the subtriangle opposite to the ith triangle.
+            Vector3D areaRatios = new Vector3D(subtriangles[1].Area, subtriangles[2].Area, subtriangles[0].Area) / mainTriangleArea;
+
+            return areaRatios;
         }
 
         public static Vector3D? LineLineIntersectionPoint(Vector3D l1Origin, Vector3D l1Dir, Vector3D l2Origin, Vector3D l2Dir)
@@ -149,15 +164,15 @@
             return false;
         }
 
-        public static Vector3D? RayTriangleIntersectionPoint(Ray ray, Vector3D p0, Vector3D p1, Vector3D p2)
+        public static Vector3D? RayTriangleIntersectionPoint(Ray ray, Triangle triangle)
         {
 
-            Vector3D? poc = RTMath.RayPlaneContact(ray, p0, p1, p2);
+            Vector3D? poc = RTMath.RayPlaneContact(ray, triangle);
 
             if (!poc.HasValue)
                 return null;
 
-            return RTMath.LiesInsideTriangle(poc.Value, false, p0, p1, p2) ? poc.Value : null;
+            return RTMath.LiesInsideTriangle(poc.Value, false, triangle) ? poc.Value : null;
         }
 
         public static bool LiesInsideBounds(Vector3D point, Vector3D lowerBounds, Vector3D upperBounds)
@@ -199,7 +214,7 @@
                         consideredAxes[c++] = axes[k];
                     }
 
-                    Vector3D? poc = RayBoundedPlaneContact(ray, lower, consideredAxes[0], consideredAxes[1]);
+                    Vector3D? poc = RayBoundedPlaneContact(ray, i == 0 ? lower : upper, consideredAxes[0], consideredAxes[1]);
                     if (poc.HasValue)
                     {
                         float dist = Vector3D.Distance(ray.Origin, poc.Value);
@@ -215,9 +230,9 @@
             return closestPOC;
         }
 
-        public static bool RayHitsTriangle(Ray ray, Vector3D p0, Vector3D p1, Vector3D p2)
+        public static bool RayHitsTriangle(Ray ray, Triangle triangle)
         {
-            return RayTriangleIntersectionPoint(ray, p0, p1, p2).HasValue;
+            return RayTriangleIntersectionPoint(ray, triangle).HasValue;
         }
 
         public static Vector3D? RaySpherePointOfContact(Ray ray, Vector3D sphereCenter, float sphereRadius)
@@ -247,11 +262,6 @@
                 realRoot = r1 > 0 ? r1 : r2;
 
             return o + (d * realRoot);
-        }
-
-        public static Vector3D CalculateTriangleNormal(Vector3D pt0, Vector3D pt1, Vector3D pt2)
-        {
-            return Vector3D.Cross(pt1 - pt0, pt2 - pt0).Normalize();
         }
 
         public static bool PointInPlane(Vector3D pointToCheck, Vector3D planeNormal, Vector3D pointInPlane)
@@ -306,27 +316,37 @@
             if (poc != null)
             {
                 if (firstTriangle)
-                    return LiesInsideTriangle(poc.Value, false, p0, p1, p2) ? poc : null;
+                    return LiesInsideTriangle(poc.Value, false, new Triangle(p0, p1, p2)) ? poc : null;
                 else
-                    return LiesInsideTriangle(poc.Value, false, p1, p3, p2) ? poc : null;
+                    return LiesInsideTriangle(poc.Value, false, new Triangle(p1, p3, p2)) ? poc : null;
             }
 
             return null;
         }
 
-        public static bool LiesOnPlane(Vector3D planePt0, Vector3D planePt1, Vector3D planePt2, Vector3D point)
+        public static bool LiesOnPlane(Triangle points, Vector3D point)
         {
-            Vector3D normal = CalculateTriangleNormal(planePt0, planePt1, planePt2);
-            float d = Vector3D.Dot(planePt0, normal);
+            Vector3D normal = points.Normal;
+            float d = Vector3D.Dot(points.Origin, normal);
 
             return MathF.Abs(Vector3D.Dot(point, normal) - d) <= Vector3D.EPSILON;
         }
 
-        public static Vector3D? RayPlaneContact(Ray ray, Vector3D p0, Vector3D p1, Vector3D p2)
+        public static bool LiesOnPlane(Vector3D pt1, Vector3D pt2, Vector3D pt3, Vector3D point)
+        {
+            return LiesOnPlane(new Triangle(pt1, pt2, pt3), point);
+        }
+
+        public static Vector3D? RayPlaneContact(Ray ray, Vector3D pt1, Vector3D pt2, Vector3D pt3)
+        {
+            return RayPlaneContact(ray, new Triangle(pt1, pt2, pt3));
+        }
+
+        public static Vector3D? RayPlaneContact(Ray ray, Triangle triangle)
         {
             Vector3D o = ray.Origin;
-            Vector3D p = p0;
-            Vector3D n = CalculateTriangleNormal(p0, p1, p2);
+            Vector3D p = triangle.Origin;
+            Vector3D n = triangle.Normal;
             Vector3D d = ray.Direction;
 
             float lamda = Vector3D.Dot(p - o, n) / Vector3D.Dot(d, n);

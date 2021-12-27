@@ -10,12 +10,13 @@
             this.Shader = shader;
         }
 
-        public virtual Int2D POCToTexturePixelIndex(Shape subShape, Vector3D pointOfContact, Int2D TextureDimensions)
+        public virtual Vector2D CalculateUV(Shape subShape, Vector3D pointOfContact)
         {
             throw new NotImplementedException();
         }
 
         public abstract Vector3D CalculateNormal(Shape shape, Vector3D pointOfContact);
+
 
     }
 }

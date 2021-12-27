@@ -5,38 +5,14 @@
         private Vector3D lowerBounds;
         private Vector3D upperBounds;
 
-        private TriangleShape[] triangleShapes;
+        private MeshTriangle[] triangleShapes;
 
-        private Vector3D[] vertices;
-        private int[] vertexTriangles;
-        private Vector2D[] uvs;
-        private int[] uvTriangles;
-
-        public int UVTrianglesCount
-        {
-            get
-            {
-                return (uvTriangles.Length / 3);
-            }
-        }
-
-        public int VertexTriangleCount
-        {
-            get
-            {
-                return (vertexTriangles.Length / 3);
-            }
-        }
-
-        public Mesh(Vector3D position, ShapeShader shader, Vector3D[] vertices, int[] triangles) : base(position, shader)
+        public Mesh(Vector3D position, ShapeShader shader, Vector3D[] vertices, int[] triangles, Vector3D[] normals = null, int[] normalTriangles = null, Vector2D[] uvs = null, int[] uvTriangles = null) : base(position, shader)
         {
             if (triangles.Length % 3 != 0)
                 throw new ArgumentException("triangles array length should be a multiple of 3.");
 
-            this.triangleShapes = new TriangleShape[triangles.Length / 3];
-
-            this.vertices = vertices.Clone<Vector3D>();
-            this.vertexTriangles = triangles.Clone<int>();
+            this.triangleShapes = new MeshTriangle[triangles.Length / 3];
 
             float[] minBounds = new float[] { float.MaxValue, float.MaxValue, float.MaxValue };
             float[] maxBounds = new float[] { float.MinValue, float.MinValue, float.MinValue };
@@ -58,52 +34,53 @@
             lowerBounds = new Vector3D(minBounds[0], minBounds[1], minBounds[2]);
             upperBounds = new Vector3D(maxBounds[0], maxBounds[1], maxBounds[2]);
 
+            if (uvTriangles != null && uvTriangles.Length % 3 != 0)
+                throw new ArgumentException("Length of uv triangles array should be a multiple of 3.");
+            if (normalTriangles != null && normalTriangles.Length % 3 != 0)
+                throw new ArgumentException("Length of normal triangles array should be a multiple of 3.");
+
             int t = 0;
 
             for (int i = 0; i < triangleShapes.Length; i++)
-                triangleShapes[i] = new TriangleShape(vertices[triangles[t++]], vertices[triangles[t++]], vertices[triangles[t++]], shader);
-        }
-
-        public Mesh(Vector3D position, ShapeShader shader, Vector3D[] vertices, int[] triangles, Vector2D[] uvs, int[] uvTriangles) : this(position, shader, vertices, triangles)
-        {
-//            if (uvs.Length != vertices.Length)
-//                throw new ArgumentException("Length of vertice and uv array should be the same.");
-
-            if (uvTriangles.Length % 3 != 0)
-                throw new ArgumentException("Length of uv triangles array should be a multiple of 3");
-
-            this.uvs = uvs.Clone<Vector2D>();
-            this.uvTriangles = uvTriangles.Clone<int>();
-        }
-
-        private int POCToVertexTriangleIndex(Vector3D poc)
-        {
-            for (int i = 0; i < VertexTriangleCount; i++)
             {
-                Vector3D[] vertices = GetTriangleVertices(i);
+                /*
+                int c = t;
+                Vector3D v0 = vertices[triangles[c++]];
+                Vector3D v1 = vertices[triangles[c++]];
+                Vector3D v2 = vertices[triangles[c++]];
 
-                if (RTMath.LiesInsideTriangle(poc, true, vertices[0], vertices[1], vertices[2]))
-                    return i;
+                c = t;
+                Vector3D n0 = validNormals ? normals[triangles[c++]] : default(Vector3D);
+                Vector3D n1 = validNormals ? normals[triangles[c++]] : default(Vector3D);
+                Vector3D n2 = validNormals ? normals[triangles[c++]] : default(Vector3D);
+
+                c = t;
+
+                Vector2D uv0 = validUVs ? uvs[uvTriangles[c++]] : default(Vector2D);
+                Vector2D uv1 = validUVs ? uvs[uvTriangles[c++]] : default(Vector2D);
+                Vector2D uv2 = validUVs ? uvs[uvTriangles[c++]] : default(Vector2D);
+                */
+
+                bool validNormals = normals != null && normalTriangles != null && t + 3 < normalTriangles.Length;
+                bool validUVs = uvs != null && uvTriangles != null && t + 3 < uvTriangles.Length;
+
+                bool identicalNormals = validNormals ? normalTriangles[t] == normalTriangles[t + 1] && normalTriangles[t] == normalTriangles[t + 2] : false; 
+
+                Triangle vertexTriangle = new Triangle(vertices[triangles[t]], vertices[triangles[t + 1]], vertices[triangles[t + 2]]);
+                Triangle? uvTriangle = validUVs ? new Triangle(uvs[uvTriangles[t]], uvs[uvTriangles[t + 1]], uvs[uvTriangles[t + 2]]) : null;
+                Triangle? normalTriangle = validNormals ? new Triangle(normals[normalTriangles[t]], normals[normalTriangles[t + 1]], normals[normalTriangles[t + 2]]) : null;
+
+                Vector3D? defaultNormal = identicalNormals ? normals[normalTriangles[t]] : null;
+
+                triangleShapes[i] = new MeshTriangle(vertexTriangle, identicalNormals ? null : normalTriangle, uvTriangle, shader, defaultNormal);
+
+                t += 3;
             }
-            return -1;
-        }
-
-
-        private int POCToUVTriangleIndex(Vector3D poc)
-        {
-            for (int i = 0; i < UVTrianglesCount; i++)
-            {
-                Vector3D[] vertices = GetUVTriangleVertices(i);
-
-                if (RTMath.LiesInsideTriangle(poc, true, vertices[0], vertices[1], vertices[2]))
-                    return i;
-            }
-            return -1;
         }
 
         public override Vector3D CalculateNormal(Shape shape, Vector3D pointOfContact)
         {
-            return shape.CalculateNormal(shape, pointOfContact);
+            return shape.CalculateNormal(null, pointOfContact);
         }
 
         protected override Vector3D? CalculateRayContactPosition(Ray ray, out WorldObject subshape)
@@ -140,58 +117,14 @@
             return closestShapePOC;
         }
 
-        public override Int2D POCToTexturePixelIndex(Shape shape, Vector3D pointOfContact, Int2D TextureDimensions)
+        public override Vector2D CalculateUV(Shape shape, Vector3D pointOfContact)
         {
-            int triangleIndex = POCToUVTriangleIndex(pointOfContact);
+            MeshTriangle triangle = (MeshTriangle)shape;
 
-            if (triangleIndex == -1)
-                return new Int2D(-1, -1);
+            return triangle.CalculateUV(null, pointOfContact);
+//            Vector2D dirContributions = triangle.VertexTriangle.GetTriangleSideContribution(pointOfContact);
+//            Vector2D finalUV = (uvs[1] - uvs[0]) * dirContributions[0] + (uvs[2] - uvs[0]) * dirContributions[1];
 
-            Vector3D[] vertices = GetTriangleVertices(triangleIndex);
-            Vector2D[] uvs = GetUVs(triangleIndex);
-
-            Vector3D dir1 = vertices[1] - vertices[0];
-            Vector3D dir2 = vertices[2] - vertices[1];
-            Vector3D shiftedPoint = pointOfContact - vertices[0];
-
-            float dir1part = (shiftedPoint.x * dir2.y - shiftedPoint.y * dir2.x) / (dir1.x * dir2.y - dir2.y * dir1.x);
-            float dir2part = (shiftedPoint.x * dir1.y - shiftedPoint.y * dir1.x) / (dir1.y * dir2.x - dir2.x * dir1.y);
-
-            Vector2D finalUV = (uvs[1] - uvs[0]) * dir1part + (uvs[2] - uvs[0]) * dir2part;
-
-            return new Int2D((int)(TextureDimensions.x * finalUV.x), (int)(TextureDimensions.y * finalUV.y));
         }
-
-        public Vector3D[] GetTriangleVertices(int triangleIndex)
-        {
-            if (triangleIndex >= vertexTriangles.Length / 3)
-                throw new IndexOutOfRangeException("triangleIndex");
-
-            triangleIndex *= 3;
-
-            return new Vector3D[] { vertices[vertexTriangles[triangleIndex]], vertices[vertexTriangles[triangleIndex + 1]], vertices[vertexTriangles[triangleIndex + 2]] };
-        }
-
-        public Vector3D[] GetUVTriangleVertices(int triangleIndex)
-        {
-            if (triangleIndex >= uvTriangles.Length / 3)
-                throw new IndexOutOfRangeException("triangleIndex");
-
-            triangleIndex *= 3;
-
-            return new Vector3D[] { vertices[uvTriangles[triangleIndex] - 1], vertices[uvTriangles[triangleIndex + 1] - 1], vertices[uvTriangles[triangleIndex + 2] - 1] };
-        }
-
-        public Vector2D[] GetUVs(int triangleIndex)
-        {
-
-            if (triangleIndex >= vertexTriangles.Length / 3)
-                throw new IndexOutOfRangeException("triangleIndex");
-
-            triangleIndex /= 3;
-
-            return new Vector2D[] { uvs[vertexTriangles[triangleIndex - 1]], uvs[vertexTriangles[triangleIndex]], uvs[vertexTriangles[triangleIndex + 1]] };
-        }
-
     }
 }

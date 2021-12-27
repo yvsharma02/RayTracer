@@ -50,9 +50,16 @@
             {
                 Int2D TextureDimensions = new Int2D(MainTexture.Width - 1, MainTexture.Height - 1);
 
-                r = (r + MainTexture[shape.POCToTexturePixelIndex(null, pointOfContact, TextureDimensions)].R) / 2f;
-                g = (g + MainTexture[shape.POCToTexturePixelIndex(null, pointOfContact, TextureDimensions)].G) / 2f;
-                r = (b + MainTexture[shape.POCToTexturePixelIndex(null, pointOfContact, TextureDimensions)].B) / 2f;
+                Vector2D uv = shape.CalculateUV(null, pointOfContact);
+
+                int x = (int)(uv.x * (TextureDimensions.x - 1));
+                int y = (int)(uv.y * (TextureDimensions.y - 1));
+
+                System.Drawing.Color color = MainTexture[x, y];
+
+                r = (r + color.R) / 2f;
+                g = (g + color.G) / 2f;
+                r = (b + color.B) / 2f;
             }
 
             return new RTColor(_i, r, g, b);
