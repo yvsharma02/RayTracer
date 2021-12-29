@@ -49,7 +49,7 @@ namespace RayTracing
 
         public Shape ClosestShapeHit(Ray ray, out Vector3D pointOfContact)
         {
-            float minDist = float.MaxValue;
+            float minDistSq = float.MaxValue;
             Shape closestHitShape = null;
             pointOfContact = new Vector3D();
             Vector3D poc = new Vector3D();
@@ -60,10 +60,10 @@ namespace RayTracing
 
                 if (shapes[i].HitsRay(ray, out poc, out currentHitSubshape))
                 {
-                    float dist = ray.Origin.DistanceFrom(poc);
-                    if (dist < minDist)
+                    float distSq = ray.Origin.DistanceFromSq(poc);
+                    if (distSq < minDistSq)
                     {
-                        minDist = dist;
+                        minDistSq = distSq;
                         closestHitShape = (Shape) ((currentHitSubshape == null) ? shapes[i] : currentHitSubshape);
                         pointOfContact = poc;
                     }

@@ -2,45 +2,27 @@
 {
     public class Mesh : Shape
     {
-        public readonly Vector3D LowerBounds;
-        public readonly Vector3D UpperBounds;
+        private Bounds bounds;
 
-        private MeshTriangle[] triangleShapes;
+        public Bounds MeshBounds { get => bounds; }
 
-        public Mesh(Vector3D position, ShapeShader shader, Vector3D[] vertices, int[] triangles, Vector3D[] normals = null, int[] normalTriangles = null, Vector2D[] uvs = null, int[] uvTriangles = null) : base(position, shader)
+        private MeshTriangle[] meshTriangles;
+
+        public Mesh(Transfomration transform, ShapeShader shader, Vector3D[] vertices, int[] triangles, Vector3D[] normals = null, int[] normalTriangles = null, Vector2D[] uvs = null, int[] uvTriangles = null) : base(transform, shader)
         {
             if (triangles.Length % 3 != 0)
                 throw new ArgumentException("triangles array length should be a multiple of 3.");
-
-            this.triangleShapes = new MeshTriangle[triangles.Length / 3];
-
-            float[] minBounds = new float[] { float.MaxValue, float.MaxValue, float.MaxValue };
-            float[] maxBounds = new float[] { float.MinValue, float.MinValue, float.MinValue };
-
-            for (int i = 0; i < vertices.Length; i++)
-            {
-                Vector3D vertex = vertices[i];
-
-                for (int j = 0; j < 3; j++)
-                {
-                    if (vertex[j] < minBounds[j])
-                        minBounds[j] = vertex[j] - Vector3D.EPSILON;
-                    if (vertex[j] > maxBounds[j])
-                        maxBounds[j] = vertex[j] + Vector3D.EPSILON;
-                }
-            }
-
-            LowerBounds = new Vector3D(minBounds[0], minBounds[1], minBounds[2]);
-            UpperBounds = new Vector3D(maxBounds[0], maxBounds[1], maxBounds[2]);
 
             if (uvTriangles != null && uvTriangles.Length % 3 != 0)
                 throw new ArgumentException("Length of uv triangles array should be a multiple of 3.");
             if (normalTriangles != null && normalTriangles.Length % 3 != 0)
                 throw new ArgumentException("Length of normal triangles array should be a multiple of 3.");
 
+            this.meshTriangles = new MeshTriangle[triangles.Length / 3];
+
             int t = 0;
 
-            for (int i = 0; i < triangleShapes.Length; i++)
+            for (int i = 0; i < meshTriangles.Length; i++)
             {
                 bool validNormals = normals != null && normalTriangles != null && t + 2 < normalTriangles.Length;
                 bool validUVs = uvs != null && uvTriangles != null && t + 2 < uvTriangles.Length;
@@ -53,10 +35,51 @@
 
                 Vector3D? defaultNormal = identicalNormals ? normals[normalTriangles[t]] : null;
 
-                triangleShapes[i] = new MeshTriangle(vertexTriangle, identicalNormals ? null : normalTriangle, uvTriangle, shader, defaultNormal);
+                meshTriangles[i] = new MeshTriangle(new Transfomration(), vertexTriangle, identicalNormals ? null : normalTriangle, uvTriangle, shader, defaultNormal, false);
 
                 t += 3;
             }
+
+            SetTransform(transform, true);
+        }
+
+        protected override void ApplyTransform()
+        {
+            int t = 0;
+
+            if (meshTriangles == null)
+                return;
+
+            for (int i = 0; i < meshTriangles.Length; i++)
+                meshTriangles[i].SetTransform(transform);
+
+            RecalculateBounds();
+        
+            base.ApplyTransform();
+        }
+
+        private void RecalculateBounds()
+        {
+            float[] minBounds = new float[] { float.MaxValue, float.MaxValue, float.MaxValue };
+            float[] maxBounds = new float[] { float.MinValue, float.MinValue, float.MinValue };
+
+            for (int i = 0; i < meshTriangles.Length; i++)
+            {
+                for (int j = 0; j < 3; j++)
+                {
+                    Vector3D vertex = meshTriangles[i].VertexTriangle[j];
+
+                    for (int k = 0; k < 3; k++)
+                    {
+                        if (vertex[k] < minBounds[k])
+                            minBounds[k] = vertex[k] - Vector3D.EPSILON;
+                        if (vertex[k] > maxBounds[k])
+                            maxBounds[k] = vertex[k] + Vector3D.EPSILON;
+                    }
+                }
+            }
+
+            bounds = new Bounds(new Vector3D(minBounds[0], minBounds[1], minBounds[2]), new Vector3D(maxBounds[0], maxBounds[1], maxBounds[2]));
         }
 
         public override Vector3D CalculateNormal(Shape shape, Vector3D pointOfContact)
@@ -66,7 +89,7 @@
 
         protected override Vector3D? CalculateRayContactPosition(Ray ray, out WorldObject subshape)
         {
-            Vector3D? boundsPOC = RTMath.RayBoundsContact(ray, LowerBounds, UpperBounds);
+            Vector3D? boundsPOC = RTMath.RayBoundsContact(ray, MeshBounds.LowerBounds, MeshBounds.UpperBounds);
 
             if (!boundsPOC.HasValue)
             {
@@ -75,20 +98,20 @@
             }
 
             Shape closestShape = null;
-            float closestShapeDist = float.MaxValue;
+            float closestShapeDistSq = float.MaxValue;
             Vector3D? closestShapePOC = null;
 
-            for (int i = 0; i < triangleShapes.Length; i++)
+            for (int i = 0; i < meshTriangles.Length; i++)
             {
                 Vector3D poc;
-                if (triangleShapes[i].HitsRay(ray, out poc, out WorldObject _))
+                if (meshTriangles[i].HitsRay(ray, out poc, out WorldObject _))
                 {
-                    float dist = Vector3D.Distance(ray.Origin, poc);
+                    float distSq = Vector3D.DistanceSq(ray.Origin, poc);
 
-                    if (dist < closestShapeDist)
+                    if (distSq < closestShapeDistSq)
                     {
-                        closestShapeDist = dist;
-                        closestShape = triangleShapes[i];
+                        closestShapeDistSq = distSq;
+                        closestShape = meshTriangles[i];
                         closestShapePOC = poc;
                     }
                 }

@@ -21,9 +21,9 @@
 
             if (!Origin.IsInfinity)
             {
-                float dist = Origin.DistanceFrom(pointOfContact);
+                float distSq = Origin.DistanceFromSq(pointOfContact);
 
-                finalIntensity = SourceColor.Intensity / (dist * dist);
+                finalIntensity = SourceColor.Intensity / distSq;
 
                 if (finalIntensity >= RTColor.MAX_INTENSITY)
                     finalIntensity = RTColor.MAX_INTENSITY;

@@ -6,22 +6,11 @@
 
         public readonly float HitRadius;
 
-        public Vector3D Center
-        {
-            get
-            {
-                return Position;
-            }
-        }
+        public Vector3D Position { get => Transform.Position; }
 
-        public PointLight(RTColor color, Vector3D position, float hitRadius = DEFAULT_HIT_RADIUS) : base(position, color)
+        public PointLight(RTColor color, Transfomration transform, float hitRadius = DEFAULT_HIT_RADIUS) : base(transform, color)
         {
             this.HitRadius = hitRadius;
-        }
-
-        public override float CalculateMultiplier(Ray ray)
-        {
-            return 1f;
         }
 
         public override bool HitsRay(Ray ray, out Vector3D pointOfContact, out WorldObject subLight)
@@ -46,7 +35,7 @@
             Vector3D dirFromPointToLight = Position - point;
 
             Shape closestShapeToPoint = world.ClosestShapeHit(new Ray(point, dirFromPointToLight), out Vector3D poc);
-            if (closestShapeToPoint == null || poc.DistanceFrom(point) >= poc.DistanceFrom(Position))
+            if (closestShapeToPoint == null || poc.DistanceFromSq(point) >= poc.DistanceFromSq(Position))
                 return new ColoredRay[] { new ColoredRay(Position, dirFromPointToLight * -1f, LightColor, point) };
             else
                 return new ColoredRay[] { new ColoredRay(Position, dirFromPointToLight * -1f, RTColor.Black, point) };

@@ -26,6 +26,119 @@
             return true;
         }
 
+        public static float[,] InvertMatrix(float[,] sqMatrix)
+        {
+            if (sqMatrix == null)
+                throw new ArgumentNullException();
+
+            if (sqMatrix.GetLength(0) != sqMatrix.GetLength(1))
+                throw new ArgumentException("Matrix should be square.");
+
+            int len = sqMatrix.GetLength(0);
+
+            float det = Determinant(sqMatrix);
+
+            float[,] inverted = new float[len, len];
+
+            for (int i = 0; i < len; i++)
+                for (int j = 0; j < len; j++)
+                    inverted[i, j] = Cofactor(sqMatrix, i, j) / det;
+
+            return inverted;
+        }
+
+        public static float[,] MultiplyMatrix(float[,] A, float[,] B)
+        {
+            if (A == null || B == null)
+                throw new ArgumentNullException();
+
+            if (A.GetLength(1) != B.GetLength(0))
+                throw new ArgumentException("Dimension Mismatch");
+
+            int resDimensions = A.GetLength(1);
+            float[,] res = new float[A.GetLength(0), B.GetLength(1)];
+
+            for (int i = 0; i < res.GetLength(0); i++)
+            {
+                for (int j = 0; j < res.GetLength(1); j++)
+                {
+                    for (int k = 0; k < resDimensions; k++)
+                        res[i, j] += A[i, k] * B[k, j];
+                }
+            }
+
+            return res;
+        }
+
+        public static float Cofactor(float[,] matrix, int x, int y)
+        {
+            return Minor(matrix, x, y) * ((x + y) % 2 == 0 ? 1 : -1);
+        }
+
+        public static float Minor(float[,] matrix, int columToSkip, int rowToSkip)
+        {
+            if (matrix == null)
+                throw new ArgumentNullException();
+
+            if (matrix.GetLength(0) != matrix.GetLength(1))
+                throw new ArgumentException("Dimension Mismatch");
+
+            int len = matrix.GetLength(0);
+
+            if (columToSkip < 0 || columToSkip >= len)
+                throw new ArgumentOutOfRangeException("columToSkip");
+
+            if (rowToSkip < 0 || rowToSkip >= len)
+                throw new ArgumentOutOfRangeException("rowToSkip");
+
+            float[,] subMatrix = SubMatrix(matrix, columToSkip, rowToSkip);
+            return Determinant(subMatrix);
+        }
+
+        public static float[,] SubMatrix(float[,] matrix, int columToSkip, int rowToSkip)
+        {
+            int len = matrix.GetLength(0);
+
+            float[,] subMat = new float[len - 1, len - 1];
+
+            int x = 0;
+
+            for (int i = 0; i < len; i++)
+            {
+                if (i == columToSkip)
+                    continue;
+
+                int y = 0;
+
+                for (int j = 0; j < len; j++)
+                {
+                    if (j == rowToSkip)
+                        continue;
+
+                    subMat[x, y++] = matrix[i, j];
+                }
+                x++;
+            }
+
+            return subMat;
+        }
+
+        public static float Determinant(float[,] matrix)
+        {
+            if (matrix.GetLength(0) != matrix.GetLength(1))
+                throw new ArgumentException("Matrix should be square.");
+
+            if (matrix.GetLength(0) == 1)
+                return matrix[0, 0];
+
+            float res = 0f;
+
+            for (int i = 0; i < matrix.GetLength(0); i++)
+                res += matrix[i, 0] * Cofactor(matrix, i, 0);
+
+            return res;
+        }
+
         public static float LinePointDistance(Vector3D lineOrigin, Vector3D lineDir, Vector3D point)
         {
             lineDir = lineDir.Normalize();
@@ -189,7 +302,7 @@
         public static Vector3D? RayBoundsContact(Ray ray, Vector3D lower, Vector3D upper)
         {
             Vector3D? closestPOC = null;
-            float closestDist = float.MaxValue;
+            float closestDistSq = float.MaxValue;
 
             Vector3D diff = upper - lower;
 
@@ -217,11 +330,11 @@
                     Vector3D? poc = RayBoundedPlaneContact(ray, i == 0 ? lower : upper, consideredAxes[0], consideredAxes[1]);
                     if (poc.HasValue)
                     {
-                        float dist = Vector3D.Distance(ray.Origin, poc.Value);
-                        if (dist < closestDist)
+                        float distSq = Vector3D.DistanceSq(ray.Origin, poc.Value);
+                        if (distSq < closestDistSq)
                         {
                             closestPOC = poc;
-                            closestDist = dist;
+                            closestDistSq = distSq;
                         }
                     }
                 }

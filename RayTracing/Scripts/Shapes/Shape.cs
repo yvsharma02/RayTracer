@@ -3,9 +3,8 @@
     public abstract class Shape : WorldObject
     {
         public ShapeShader Shader { get; private set; }
-        public override bool IsLightSource => false;
 
-        public Shape(Vector3D position, ShapeShader shader) : base(position)
+        public Shape(Transfomration transform, ShapeShader shader) : base(transform)
         {
             this.Shader = shader;
         }
@@ -16,7 +15,5 @@
         }
 
         public abstract Vector3D CalculateNormal(Shape shape, Vector3D pointOfContact);
-
-
     }
 }

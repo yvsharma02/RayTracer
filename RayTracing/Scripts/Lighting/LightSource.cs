@@ -2,16 +2,14 @@
 {
     public abstract class LightSource : WorldObject
     {
-        public readonly RTColor LightColor;
+        private RTColor emmisionColor;
 
-        public LightSource(Vector3D position, RTColor sourceColor) : base(position)
+        public RTColor LightColor => emmisionColor;
+
+        public LightSource(Transfomration transform, RTColor emmisionColor) : base(transform)
         {
-            this.LightColor = sourceColor;
+            this.emmisionColor = emmisionColor;
         }
-
-        public override bool IsLightSource => true;
-
-        public abstract float CalculateMultiplier(Ray reverseRay);
 
         public abstract ColoredRay[] ReachingRays(World world, Vector3D point);
     }

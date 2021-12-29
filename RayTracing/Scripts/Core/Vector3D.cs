@@ -2,6 +2,10 @@
 {
     public struct Vector3D
     {
+        public static Vector3D Zero => new Vector3D();
+
+        public static Vector3D One => new Vector3D(1, 1, 1);
+
         public const float EPSILON = 0.00001f;
 
         public readonly float x;
@@ -63,6 +67,11 @@
             return new Vector3D(x / mag, y / mag, z / mag);
         }
 
+        public float DistanceFromSq(Vector3D other)
+        {
+            return DistanceSq(this, other);
+        }
+
         public float DistanceFrom(Vector3D other)
         {
             return Distance(this, other);
@@ -88,9 +97,16 @@
             }
         }
 
+        public static float DistanceSq(Vector3D a, Vector3D b)
+        {
+            float dSq = (a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y) + (a.z - b.z) * (a.z - b.z);
+
+            return dSq;
+        }
+
         public static float Distance(Vector3D a, Vector3D b)
         {
-            return (float) Math.Sqrt((a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y) + (a.z - b.z) * (a.z - b.z));
+            return MathF.Sqrt(DistanceSq(a, b));
         }
 
         public static float Dot(Vector3D a, Vector3D b)

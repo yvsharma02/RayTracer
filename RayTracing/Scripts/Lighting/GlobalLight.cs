@@ -12,7 +12,7 @@
         private Int2D rayCount;
 
         // axis includes length too
-        public GlobalLight(Vector3D position, Vector3D firstAxis, Vector3D secondAxis, Int2D rayCount, RTColor color) : base(position, color)
+        public GlobalLight(Transfomration transform, Vector3D firstAxis, Vector3D secondAxis, Int2D rayCount, RTColor color) : base(transform, color)
         {
             if (!Vector3D.ArePerpendicular(firstAxis, secondAxis))
                 throw new ArgumentException("First and Second axis should be perpendicular");
@@ -22,18 +22,6 @@
             this.secondAxis = secondAxis;
             this.rayCount = rayCount;
         } 
-
-        public override float CalculateMultiplier(Ray reverseRay)
-        {
-            Vector3D dir = (reverseRay.Direction * -1f).Normalize();
-
-            float multiplier = Vector3D.Dot(dir, Direction);
-
-            if (multiplier <= GLOBAL_MIN_MULTIPLIER)
-                return GLOBAL_MIN_MULTIPLIER;
-
-            return multiplier;
-        }
 
         protected override Vector3D? CalculateRayContactPosition(Ray ray, out WorldObject subLight)
         {
