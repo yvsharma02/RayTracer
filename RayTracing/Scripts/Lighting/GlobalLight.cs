@@ -6,21 +6,12 @@
 
         public readonly Vector3D Direction;
 
-        private Vector3D firstAxis;
-        private Vector3D secondAxis;
-
         private Int2D rayCount;
 
         // axis includes length too
-        public GlobalLight(Transfomration transform, Vector3D firstAxis, Vector3D secondAxis, Int2D rayCount, RTColor color) : base(transform, color)
+        public GlobalLight(Transfomration transform, Vector3D direction, RTColor color) : base(transform, color)
         {
-            if (!Vector3D.ArePerpendicular(firstAxis, secondAxis))
-                throw new ArgumentException("First and Second axis should be perpendicular");
-
-            this.Direction = Vector3D.Cross(firstAxis, secondAxis).Normalize();
-            this.firstAxis = firstAxis;
-            this.secondAxis = secondAxis;
-            this.rayCount = rayCount;
+            this.Direction = direction.Normalize();
         } 
 
         protected override Vector3D? CalculateRayContactPosition(Ray ray, out WorldObject subLight)
@@ -31,33 +22,12 @@
 
         public override ColoredRay[] ReachingRays(World world, Vector3D point)
         {
-            Vector3D axisIntersection = point - (firstAxis / 2f) - (secondAxis / 2f);
+            Shape shape = world.ClosestShapeHit(new Ray(transform.Position, Direction * -1f), out Vector3D poc);
 
-//            RTRay[] rays = new RTRay[rayCount.x * rayCount.y];
-            int totalRayCount = rayCount.x * rayCount.y;
-            int hits = 0;
-
-            for (int i = 0; i < rayCount.x; i++)
-            {
-                for (int j = 0; j < rayCount.y; j++)
-                {
-                    Vector3D rayOrigin = axisIntersection + firstAxis * ((float)i / rayCount.x) + secondAxis * ((float)j / rayCount.y);
-
-                    Vector3D contactPoint;
-                    // Shooting a ray from the point towards the direction of light. If it doesn't hit any shape, it means global light is directly hitting the surface.
-                    Shape shape = world.ClosestShapeHit(new Ray(rayOrigin, Direction * -1f), out contactPoint);
-
-                    //                    RTColor clr = Vector3D.Distance(contactPoint, point) <= Vector3D.EPSILON ? LightColor : ShadowColor;
-                    //                    rays[i * rayCount.x + j] = new RTRay(origin, Direction, clr);
-                    if (shape == null)
-                        hits += 1;
-                }
-            }
-
-            ColoredRay[] rays = new ColoredRay[1];
-            rays[0] = new ColoredRay(Direction * float.NegativeInfinity, Direction, new RTColor(LightColor.Intensity * ((float) hits / totalRayCount), LightColor.G, LightColor.G, LightColor.B), point);
-
-            return rays;
+            if (shape == null)
+                return new ColoredRay[] { new ColoredRay(Direction * float.NegativeInfinity, Direction, LightColor, point) };
+            else
+                return new ColoredRay[0];
         }
     }
 }

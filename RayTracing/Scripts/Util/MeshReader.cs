@@ -48,7 +48,7 @@ namespace RayTracing
 
                     float x = float.Parse(line.Substring(substringStartIndices[0] + 1, substringStartIndices[1] - substringStartIndices[0] - 1));
                     float y = float.Parse(line.Substring(substringStartIndices[1] + 1, substringStartIndices[2] - substringStartIndices[1] - 1));
-                    float z = -float.Parse(line.Substring(substringStartIndices[2] + 1, substringStartIndices[3] - substringStartIndices[2] - 1));
+                    float z = float.Parse(line.Substring(substringStartIndices[2] + 1, substringStartIndices[3] - substringStartIndices[2] - 1));
 
                     if (!areNormals)
                         vertices.AddLast(new Vector3D(x, y, z));

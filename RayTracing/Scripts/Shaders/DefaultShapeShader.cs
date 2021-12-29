@@ -33,12 +33,16 @@
                 {
                     for (int j = 0; j < hittingRays[i].Length; j++)
                     {
-                        ColoredRay ray = hittingRays[i][j];
+                        float dot = Vector3D.Dot(hittingRays[i][j].Direction * -1f, shape.CalculateNormal(null, pointOfContact));
 
+                        if (dot < 0f)
+                            dot = 0f;
+
+                        ColoredRay ray = hittingRays[i][j];
                         _i += ray.DestinationColor.Intensity;
-                        r += (float)(ray.SourceColor.R * (ray.DestinationColor.Intensity / totalIntensity));
-                        g += (float)(ray.SourceColor.G * (ray.DestinationColor.Intensity / totalIntensity));
-                        b += (float)(ray.SourceColor.B * (ray.DestinationColor.Intensity / totalIntensity));
+                        r += (float)(ray.SourceColor.R * dot * (ray.DestinationColor.Intensity / totalIntensity));
+                        g += (float)(ray.SourceColor.G * dot * (ray.DestinationColor.Intensity / totalIntensity));
+                        b += (float)(ray.SourceColor.B * dot * (ray.DestinationColor.Intensity / totalIntensity));
 
                     }
                 }

@@ -31,11 +31,10 @@
 
         public TestScene()
         {
-            Transfomration sphereTransform = new Transfomration(new Vector3D(0, 0, 0), new Vector3D(0, 0, 145), new Vector3D(5, 5, 5));
+            Transfomration sphereTransform = new Transfomration(new Vector3D(0, 0, 0), new Vector3D(0, 0, 0), new Vector3D(15, 15, 15));
 
             RTColor sunColor = new RTColor(RTColor.MAX_INTENSITY, 255, 255, 255);
-            Vector3D sunAxis1 = new Vector3D(0.001f, 0, 0f);
-            Vector3D sunAxis2 = new Vector3D(0f, -0.001f, 0.001f);
+            Vector3D sunDir = new Vector3D(0, -1f, -1f);
 
             world = new World(null, null);
 
@@ -56,12 +55,10 @@
 
             DefaultShapeShader meshShader = new DefaultShapeShader(TextureLoader.Load(TEST_TEXTURE_LOCATION));
 
-            Vector3D v = Vector3D.Cross(sunAxis1, sunAxis2);
-
             MeshBuilder builder = MeshReader.ReadObj(TEST_MESH_LOCATION);
             world.AddShape(builder.Build(sphereTransform, meshShader));
 
-            world.AddLightSource(new GlobalLight(new Transfomration(new Vector3D(0, 100, 0)), sunAxis1, sunAxis2, new Int2D(2, 2), sunColor));
+            world.AddLightSource(new GlobalLight(new Transfomration(new Vector3D(0, 100, 0)), sunDir, sunColor));
         }
 
         public void Render()

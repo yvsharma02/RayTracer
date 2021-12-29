@@ -55,11 +55,11 @@
                 Vector3D[] normals = new Vector3D[3];
 
                 for (int i = 0; i < 3; i++)
-                    normals[i] = newTransform.Transform(oldTransform.InverseTransform(NormalTriangle.Value[i]));
+                    normals[i] = newTransform.Transform(oldTransform.InverseTransform(NormalTriangle.Value[i])).Normalize();
 
                 NormalTriangle = new Triangle(normals[0], normals[1], normals[2]);
             }
-            DefaultNormal = newTransform.Transform(oldTransform.Transform(DefaultNormal));
+            DefaultNormal = newTransform.Transform(oldTransform.Transform(DefaultNormal)).Normalize();
 
             base.ApplyTransform();
         }
@@ -78,12 +78,10 @@
             if (NormalTriangle.HasValue)
             {
                 Vector3D contribution = vertexTriangle.CalculateBarycentricPoint(pointOfContact);
-
-                return NormalTriangle.Value[0] * contribution[0] + NormalTriangle.Value[1] * contribution[1] + NormalTriangle.Value[2] * contribution[2];
+                return (NormalTriangle.Value[0] * contribution[0] + NormalTriangle.Value[1] * contribution[1] + NormalTriangle.Value[2] * contribution[2]).Normalize();
             }
             else
                 return DefaultNormal;
-
         }
 
         public override Vector2D CalculateUV(Shape subShape, Vector3D pointOfContact)
@@ -92,7 +90,6 @@
                 throw new InvalidOperationException("Triangle does not have valid UVs.");
 
             Vector3D contribution = vertexTriangle.CalculateBarycentricPoint(pointOfContact);
-
             Vector2D uv = UVTriangle.Value[0] * contribution[0] + UVTriangle.Value[1] * contribution[1] + UVTriangle.Value[2] * contribution[2];
 
             return uv;
