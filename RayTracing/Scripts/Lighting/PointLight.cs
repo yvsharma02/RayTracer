@@ -6,7 +6,7 @@
 
         public readonly float HitRadius;
 
-        public Vector3D Position { get => Transform.Position; }
+        public Vector3D Position { get => LocalTransform.Position; }
 
         public PointLight(RTColor color, Transfomration transform, float hitRadius = DEFAULT_HIT_RADIUS) : base(transform, color)
         {

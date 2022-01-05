@@ -37,16 +37,16 @@
                 UVTriangle = uvs.Value;
             }
 
-            SetTransform(transform, applyTransformImmediately);
+            SetLocalTransform(transform, applyTransformImmediately);
         }
 
         protected override void ApplyTransform()
         {
-            Transfomration newTransform = transform;
+            Transfomration newTransform = localTrannsform;
 
             Vector3D[] vertices = new Vector3D[3];
             for (int i = 0; i < 3; i++)
-                vertices[i] = newTransform.Transform(oldTransform.InverseTransform(vertexTriangle[i]));
+                vertices[i] = newTransform.Transform(oldLocalTransform.InverseTransform(vertexTriangle[i]));
 
             vertexTriangle = new Triangle(vertices[0], vertices[1], vertices[2]);
         
@@ -55,11 +55,11 @@
                 Vector3D[] normals = new Vector3D[3];
 
                 for (int i = 0; i < 3; i++)
-                    normals[i] = newTransform.Transform(oldTransform.InverseTransform(NormalTriangle.Value[i])).Normalize();
+                    normals[i] = newTransform.Transform(oldLocalTransform.InverseTransform(NormalTriangle.Value[i])).Normalize();
 
                 NormalTriangle = new Triangle(normals[0], normals[1], normals[2]);
             }
-            DefaultNormal = newTransform.Transform(oldTransform.Transform(DefaultNormal)).Normalize();
+            DefaultNormal = newTransform.Transform(oldLocalTransform.InverseTransform(DefaultNormal, false, true, false), false, true, false).Normalize();
 
             base.ApplyTransform();
         }

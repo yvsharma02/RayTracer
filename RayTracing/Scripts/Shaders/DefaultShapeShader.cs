@@ -4,13 +4,60 @@
     {
         public readonly Texture MainTexture;
 
+        public readonly Texture NormalMap;
+
         public DefaultShapeShader() { }
 
-        public DefaultShapeShader(Texture texture)
+        public DefaultShapeShader(Texture texture, Texture normalMap)
         {
             this.MainTexture = texture;
+            this.NormalMap = normalMap;
         }
 
+        private Vector3D CalculateNormal(Shape shape, Vector3D poc)
+        {
+            if (NormalMap != null)
+            {
+                Int2D TextureDimensions = new Int2D(NormalMap.Width - 1, NormalMap.Height - 1);
+
+                Vector2D uv = shape.CalculateUV(null, poc);
+
+                int x = (int)(uv.x * TextureDimensions.x);
+                int y = (int)(uv.y * TextureDimensions.y);
+
+                System.Drawing.Color color = NormalMap[x, y];
+
+                Vector3D nmNormal = new Vector3D((color.R - 127.5f) / 127.5f, (color.G - 127.5f) / 127.5f, color.B / 127.5f);
+                Vector3D geomNormal = shape.CalculateNormal(null, poc).Normalize();
+
+                Vector3D forward = new Vector3D(0, 0, 1);
+
+                Transfomration transform = Transfomration.CalculateRequiredRotationTransform(Vector3D.Zero, forward, geomNormal);
+
+                return transform.Transform(nmNormal).Normalize();
+            }
+            else
+                return shape.CalculateNormal(shape, poc);
+        }
+
+        public override Ray[] ReverseEmmitedRays(Shape shape, Ray reverseHitRay, Vector3D pointOfContact)
+        {
+            if (NormalMap != null)
+            {
+                Int2D TextureDimensions = new Int2D(NormalMap.Width - 1, NormalMap.Height - 1);
+
+                Vector2D uv = shape.CalculateUV(null, pointOfContact);
+
+                int x = (int)(uv.x * TextureDimensions.x);
+                int y = (int)(uv.y * TextureDimensions.y);
+
+                System.Drawing.Color color = MainTexture[x, y];
+
+                return new Ray[] { new Ray(pointOfContact, RTMath.CalculateReflectedRayDirection(reverseHitRay.DirectionReversed, CalculateNormal(null, pointOfContact))) };
+            }
+            else
+                return base.ReverseEmmitedRays(null, reverseHitRay, pointOfContact);
+        }
         public override RTColor CalculateBounceColor(Shape shape, ColoredRay[][] hittingRays, Vector3D pointOfContact, Vector3D bouncedRayDirection)
         {
             int count = 0;
@@ -33,7 +80,7 @@
                 {
                     for (int j = 0; j < hittingRays[i].Length; j++)
                     {
-                        float dot = Vector3D.Dot(hittingRays[i][j].Direction * -1f, shape.CalculateNormal(null, pointOfContact));
+                        float dot = Vector3D.Dot(hittingRays[i][j].Direction * -1f, CalculateNormal(shape, pointOfContact));
 
                         if (dot < 0f)
                             dot = 0f;

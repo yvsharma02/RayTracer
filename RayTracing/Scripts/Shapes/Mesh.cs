@@ -33,14 +33,14 @@
                 Triangle? uvTriangle = validUVs ? new Triangle(uvs[uvTriangles[t]], uvs[uvTriangles[t + 1]], uvs[uvTriangles[t + 2]]) : null;
                 Triangle? normalTriangle = validNormals ? new Triangle(normals[normalTriangles[t]], normals[normalTriangles[t + 1]], normals[normalTriangles[t + 2]]) : null;
 
-                Vector3D? defaultNormal = identicalNormals ? normals[normalTriangles[t]] : null;
+//                Vector3D? defaultNormal = identicalNormals ? normals[normalTriangles[t]] : null;
 
-                meshTriangles[i] = new MeshTriangle(new Transfomration(), vertexTriangle, identicalNormals ? null : normalTriangle, uvTriangle, shader, defaultNormal, false);
+                meshTriangles[i] = new MeshTriangle(new Transfomration(), vertexTriangle, identicalNormals ? null : normalTriangle, uvTriangle, shader, null, false);
 
                 t += 3;
             }
 
-            SetTransform(transform, true);
+            SetLocalTransform(transform, true);
         }
 
         protected override void ApplyTransform()
@@ -51,7 +51,7 @@
                 return;
 
             for (int i = 0; i < meshTriangles.Length; i++)
-                meshTriangles[i].SetTransform(transform);
+                meshTriangles[i].SetLocalTransform(localTrannsform);
 
             RecalculateBounds();
         

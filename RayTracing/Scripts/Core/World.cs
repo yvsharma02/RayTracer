@@ -7,8 +7,6 @@ namespace RayTracing
         private List<Shape> shapes;
         private List<LightSource> lightSources;
 
-        private List<WorldObject> worldObjects;
-
         private Camera mainCamera;
 
         public int ShapesCount
@@ -26,25 +24,12 @@ namespace RayTracing
                 return lightSources.Count;
             }
         }
-
-        public int ObjectCount
+        public World(Camera mainCamera, GlobalLight globalLightSrc)
         {
-            get
-            {
-                return worldObjects.Count;
-            }
-        }
-
-        public World(Camera mainCamera, GlobalLight globalLightSrc, params WorldObject[] worldObjectsToAdd)
-        {
-            this.worldObjects = new List<WorldObject>();
             this.shapes = new List<Shape>();
             this.lightSources = new List<LightSource>();
 
             SetMainCamera(mainCamera);
-
-            for (int i = 0; i < worldObjectsToAdd.Length; i++)
-                worldObjects.Add(worldObjectsToAdd[i]);
         }
 
         public Shape ClosestShapeHit(Ray ray, out Vector3D pointOfContact)
@@ -76,13 +61,11 @@ namespace RayTracing
         public void AddShape(Shape s)
         {
             shapes.Add(s);
-            worldObjects.Add(s);
         }
 
         public void RemoveShape(Shape s)
         {
             shapes.Remove(s);
-            worldObjects.Remove(s);
         }
 
         public void SetMainCamera(Camera camera)
@@ -93,13 +76,11 @@ namespace RayTracing
         public void AddLightSource(LightSource source)
         {
             lightSources.Add(source);
-            worldObjects.Add(source);
         }
 
         public void RemoveLightSource(LightSource source)
         {
             lightSources.Remove(source);
-            worldObjects.Remove(source);
         }
 
         public LightSource GetLightSource(int index)
@@ -110,11 +91,6 @@ namespace RayTracing
         public Shape GetShape(int index)
         {
             return shapes[index];
-        }
-
-        public WorldObject GetWorlObject(int index)
-        {
-            return worldObjects[index];
         }
 
         public Camera GetMainCamera()

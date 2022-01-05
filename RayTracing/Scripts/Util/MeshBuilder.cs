@@ -11,9 +11,9 @@
         public int[] normalTriangles;
         public int[] uvTriangles;
 
-        public Mesh Build(Transfomration transform, ShapeShader shader)
+        public Mesh Build(Transfomration transform, ShapeShader shader, bool includeNormals)
         {
-            return new Mesh(transform, shader, vertices, vertexTriangles, normals, normalTriangles, uvs, uvTriangles);
+            return new Mesh(transform, shader, vertices, vertexTriangles, includeNormals ? normals : null, includeNormals ? normalTriangles : null, uvs, uvTriangles);
         }
     }
 }

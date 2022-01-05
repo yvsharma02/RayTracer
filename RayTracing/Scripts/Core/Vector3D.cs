@@ -2,8 +2,9 @@
 {
     public struct Vector3D
     {
-        public static Vector3D Zero => new Vector3D();
+        public static Vector3D Forward => new Vector3D(0, 0, 1);
 
+        public static Vector3D Zero => new Vector3D();
         public static Vector3D One => new Vector3D(1, 1, 1);
 
         public const float EPSILON = 0.00001f;

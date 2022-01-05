@@ -3,7 +3,10 @@
     public class TestScene
     {
         private const string TEST_MESH_LOCATION = @"D:\Projects\VisualStudio\RayTracing\Assets\TextureSphere.obj";
-        private const string TEST_TEXTURE_LOCATION = @"D:\Projects\VisualStudio\RayTracing\Assets\SphereTexture_Texture.png";
+        private const string TEST_TEXTURE_LOCATION = @"D:\Projects\VisualStudio\RayTracing\Assets\BASE_DL.jpg";
+        private const string TEST_NORMAL_MAP_LOCATION = @"D:\Projects\VisualStudio\RayTracing\Assets\Normal_DL.jpg";
+
+        private const string TEST_MESH_2_LOCATION = @"D:\Projects\VisualStudio\RayTracing\Assets\Plane.obj";
 
         private const bool MULTI_THREADING_ENABLED = true;
 
@@ -31,7 +34,9 @@
 
         public TestScene()
         {
-            Transfomration sphereTransform = new Transfomration(new Vector3D(0, 0, 0), new Vector3D(0, 0, 0), new Vector3D(15, 15, 15));
+            Transfomration sphereTransform = new Transfomration(new Vector3D(0, -25, 5), new Vector3D(0, 0, 0), new Vector3D(5, 5, 5));
+
+            Transfomration planeTransform = new Transfomration(new Vector3D(0, -25, 0), new Vector3D(90, 45, 0), new Vector3D(25, 25, 25));
 
             RTColor sunColor = new RTColor(RTColor.MAX_INTENSITY, 255, 255, 255);
             Vector3D sunDir = new Vector3D(0, -1f, -1f);
@@ -41,22 +46,25 @@
             Camera camera = new Camera(
                 new Vector3D(1, 0, 0),
                 new Vector3D(0, 1f, 0f),
-                new Vector3D(-50, -50, 0),
+                new Vector3D(-100, -100, 0),
                 new Vector3D(0, 0, 25),
-                100,
-                100,
+                200,
+                200,
                 0,
                 new Int2D(RES_X, RES_Y),
                 new Int2D(RAYS_PER_PIXEL_X, RAYS_PER_PIXEL_Y),
                 BOUCES,
                 new RTColor(RTColor.MAX_INTENSITY / 3, 123, 123, 123));
 
+            // add a point light to plane to check lighting
+
             world.SetMainCamera(camera);
 
-            DefaultShapeShader meshShader = new DefaultShapeShader(TextureLoader.Load(TEST_TEXTURE_LOCATION));
-
+            DefaultShapeShader sphereShader = new DefaultShapeShader(TextureLoader.Load(TEST_TEXTURE_LOCATION), TextureLoader.Load(TEST_NORMAL_MAP_LOCATION));
             MeshBuilder builder = MeshReader.ReadObj(TEST_MESH_LOCATION);
-            world.AddShape(builder.Build(sphereTransform, meshShader));
+            world.AddShape(builder.Build(sphereTransform, sphereShader, true));
+            MeshBuilder builder2 = MeshReader.ReadObj(TEST_MESH_2_LOCATION);
+            world.AddShape(builder2.Build(planeTransform, new DefaultShapeShader(TextureLoader.Load(TEST_TEXTURE_LOCATION), TextureLoader.Load(TEST_NORMAL_MAP_LOCATION)), true));
 
             world.AddLightSource(new GlobalLight(new Transfomration(new Vector3D(0, 100, 0)), sunDir, sunColor));
         }

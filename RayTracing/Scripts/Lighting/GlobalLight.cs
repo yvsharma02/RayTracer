@@ -2,8 +2,6 @@
 {
     public class GlobalLight : LightSource
     {
-        private const float GLOBAL_MIN_MULTIPLIER = 0;
-
         public readonly Vector3D Direction;
 
         private Int2D rayCount;
@@ -22,7 +20,7 @@
 
         public override ColoredRay[] ReachingRays(World world, Vector3D point)
         {
-            Shape shape = world.ClosestShapeHit(new Ray(transform.Position, Direction * -1f), out Vector3D poc);
+            Shape shape = world.ClosestShapeHit(new Ray(localTrannsform.Position, Direction * -1f), out Vector3D poc);
 
             if (shape == null)
                 return new ColoredRay[] { new ColoredRay(Direction * float.NegativeInfinity, Direction, LightColor, point) };

@@ -2,7 +2,9 @@
 {
     public abstract class Shape : WorldObject
     {
-        public ShapeShader Shader { get; private set; }
+        public ShapeShader Shader { get; protected set; }
+
+//        public abstract Bounds Bounds { get; }
 
         public Shape(Transfomration transform, ShapeShader shader) : base(transform)
         {
