@@ -1,134 +1,68 @@
-﻿namespace RayTracing
+﻿using System.Drawing;
+
+namespace RayTracing
 {
-    public class Camera
+    public class Camera : WorldObject
     {
+        // Corresponding to Screen X as camera viewport X and screen Y as camera viewport Y
+        public static readonly Vector3D DefaultCameraForward = -Vector3D.Forward;
 
-        private Int2D resolution;
+        public static readonly Vector3D DefaultCameraX = new Vector3D(1, 0, 0);
+        public static readonly Vector3D DefaultCameraY = new Vector3D(0, 1, 0);
 
-        private Vector3D xAxisLine;
-        private Vector3D yAxisLine;
-        private Vector3D axisIntersectionPoint;
+        private Vector3D transformedForward;
+        private Vector3D transformedX;
+        private Vector3D transformedY;
 
-        private Vector3D eyePosition;
-        private float xAxisSize;
-        private float yAxisSize;
+        public Vector3D TransformedForward => transformedForward;
+        public Vector3D TransformedX => transformedX;
+        public Vector3D TransformedY => transformedY;
         
-        // In Radians.
-        private float rotation;
+        public Vector2D ScreenSize => new Vector2D(transform.Scale.x, transform.Scale.y);
+        public Vector2D PixelSize => new Vector2D(ScreenSize.x / Resolution.x, ScreenSize.y / Resolution.y);
 
-        private Int2D raysPerPixel;
+        public Vector3D ProjectedScreenSize => ProjectedButtomRight - ProjectedTopLeft;
 
-        private Vector3D cameraForwardDirection;
-        private Vector3D footOfPerpendiuclarFromEye;
+        public Vector3D ProjectedPixelSize => new Vector3D(ProjectedScreenSize.x / Resolution.x, ProjectedScreenSize.y / Resolution.y);
 
-        private Vector3D cam_topLeft;
-        private Vector3D cam_topRight;
-        private Vector3D cam_buttomRight;
-        private Vector3D cam_buttomLeft;
+        public Vector3D EyePosition => transform.Position;
 
-        private RTColor noHitColor;
-        private RTColor bounceLimitColor;
+        public Vector3D ProjectedTopLeft            => EyePosition + transformedForward - (transformedX * ScreenSize.x) / 2f + (transformedY * ScreenSize.y) / 2f;
+        public Vector3D ProjectedTopRight           => EyePosition + transformedForward + (transformedX * ScreenSize.x) / 2f + (transformedY * ScreenSize.y) / 2f;
+        public Vector3D ProjectedButtomLeft         => EyePosition + transformedForward - (transformedX * ScreenSize.x) / 2f - (transformedY * ScreenSize.y) / 2f;
+        public Vector3D ProjectedButtomRight        => EyePosition + transformedForward + (transformedX * ScreenSize.x) / 2f - (transformedY * ScreenSize.y) / 2f;
 
-        private int bounceLimit;
-        public int BounceLimit
+        public readonly RTColor NoHitColor;
+        public readonly PixelShader Shader;
+        public readonly Int2D Resolution;
+        public readonly int BounceLimit;
+
+        public Camera(Transfomration transform, Int2D resolution, PixelShader shader, int bounceLimit, RTColor noHitColor) : base(transform)
         {
-            get
-            {
-                return bounceLimit;
-            }
+            this.NoHitColor = noHitColor;
+            this.BounceLimit = bounceLimit;
+            this.Shader = shader;
+            this.Resolution = resolution;
+
+            ApplyTransform();
         }
 
-        public RTColor NoHitColor
+        public Vector3D ProjectedPixelCenter(Int2D index)
         {
-            get
-            {
-                return noHitColor;
-            }
+            if (index.x < 0 || index.y < 0 || index.x > Resolution.x || index.y > Resolution.y)
+                throw new IndexOutOfRangeException();
+
+            return ProjectedTopLeft + transformedX * (ScreenSize.x * ((float) index.x /  Resolution.x)) - transformedY * (ScreenSize.y * ((float) index.y / Resolution.y));
         }
 
-        public RTColor BounceLimitColor
+        protected override void ApplyTransform()
         {
-            get
-            {
-                return bounceLimitColor;
-            }
-        }
+            transformedForward = transform.Transform(DefaultCameraForward, false, true, false);
+            transformedForward *= transform.Scale.z;
+            transformedX = transform.Transform(DefaultCameraX, false, true, false);
+            transformedY = transform.Transform(DefaultCameraY, false, true, false);
 
-        public Int2D RaysPerPixel
-        {
-            get
-            {
-                return raysPerPixel;
-            }
-        }
-
-        public Int2D Resolution
-        {
-            get
-            {
-                return resolution;
-            }
-        }
-
-        public Camera(Vector3D xal, Vector3D yal, Vector3D aip, Vector3D ep, float xas, float yas, float rotation, Int2D res, Int2D rpp, int bounceLimit, RTColor noHitColor)
-        {
-            xal = xal.Normalize();
-            yal = yal.Normalize();
-
-            if (!Vector3D.ArePerpendicular(xal, yal))
-                throw new ArgumentException("xAxisLine and yAxisLine should be perpendicular");
-
-            this.resolution = res;
-            this.xAxisLine = xal;
-            this.yAxisLine = yal;
-            this.axisIntersectionPoint = aip;
-            this.eyePosition = ep;
-            this.xAxisSize = xas;
-            this.yAxisSize = yas;
-            this.rotation = rotation;
-            this.raysPerPixel = rpp;
-            this.bounceLimit = bounceLimit;
-            this.noHitColor = noHitColor;
-
-            Initialise();
-        }
-
-        private void Initialise()
-        {
-            rotation = (float) (rotation % (2 * Math.PI));
-
-            Vector3D n = Vector3D.Cross(xAxisLine, yAxisLine).Normalize();
-            Vector3D e = eyePosition;
-            Vector3D o = axisIntersectionPoint;
-
-            float lamda = Vector3D.Dot(o - e, n);
-
-            footOfPerpendiuclarFromEye = e + n * lamda;
-            cameraForwardDirection = (n * lamda * -1f).Normalize();
-
-            Vector3D finalXAxis = (xAxisLine * Math.Cos(rotation) + yAxisLine * Math.Sin(rotation));
-            Vector3D finalYAxis = (yAxisLine * Math.Cos(rotation) - xAxisLine * Math.Sin(rotation));
-
-            xAxisLine = finalXAxis.Normalize();
-            yAxisLine = finalYAxis.Normalize();
-
-            cam_topLeft = footOfPerpendiuclarFromEye - (xAxisLine * (xAxisSize / 2f)) + (yAxisLine * (yAxisSize / 2f));
-            cam_topRight = footOfPerpendiuclarFromEye + (xAxisLine * (xAxisSize / 2f)) + (yAxisLine * (yAxisSize / 2f));
-            cam_buttomRight = footOfPerpendiuclarFromEye + (xAxisLine * (xAxisSize / 2f)) - (yAxisLine * (yAxisSize / 2f));
-            cam_buttomLeft = footOfPerpendiuclarFromEye - (xAxisLine * (xAxisSize / 2f)) - (yAxisLine * (yAxisSize / 2f));
-        }
-
-        public Ray PixelIndexToRay(Int2D pixel, Int2D pixelRayIndex)
-        {
-            Vector3D origin = eyePosition;
-
-            float percentX = (pixel.x * raysPerPixel.x + pixelRayIndex.x) / (float) ((resolution.x + 1) * raysPerPixel.x);
-            float percentY = (pixel.y * raysPerPixel.y + pixelRayIndex.y) / (float)((resolution.y + 1) * raysPerPixel.y);
-
-            Vector3D screenPt = cam_topLeft + (cam_topRight - cam_topLeft) * percentX + (cam_buttomLeft - cam_topLeft) * percentY;
-            Vector3D dir = screenPt - origin;
-
-            return new Ray(origin, dir);
+            base.ApplyTransform();
         }
     }
 }

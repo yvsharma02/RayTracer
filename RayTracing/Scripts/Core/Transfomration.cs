@@ -138,6 +138,11 @@
             return new Vector3D(xAngle, yAngle, zAngle);
         }
 
+        public static Vector3D FindAngles(Vector3D point)
+        {
+            return FindAngles(point, Vector3D.Zero);
+        }
+
         public static Transfomration Add(Transfomration a, Transfomration b)
         {
             return new Transfomration(a.Position + b.Position, a.Rotation + b.Rotation, new Vector3D(a.Scale.x * b.Scale.x, a.Scale.y * b.Scale.y, a.Scale.z * b.Scale.z));

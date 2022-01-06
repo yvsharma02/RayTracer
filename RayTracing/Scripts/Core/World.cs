@@ -41,7 +41,7 @@ namespace RayTracing
 
             for (int i = 0; i < shapes.Count; i++)
             {
-                WorldObject currentHitSubshape;
+                Shape currentHitSubshape;
 
                 if (shapes[i].HitsRay(ray, out poc, out currentHitSubshape))
                 {
@@ -49,7 +49,7 @@ namespace RayTracing
                     if (distSq < minDistSq)
                     {
                         minDistSq = distSq;
-                        closestHitShape = (Shape) ((currentHitSubshape == null) ? shapes[i] : currentHitSubshape);
+                        closestHitShape = (currentHitSubshape == null) ? shapes[i] : currentHitSubshape;
                         pointOfContact = poc;
                     }
                 }

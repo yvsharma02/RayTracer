@@ -4,18 +4,36 @@
     {
         public ShapeShader Shader { get; protected set; }
 
-//        public abstract Bounds Bounds { get; }
-
         public Shape(Transfomration transform, ShapeShader shader) : base(transform)
         {
             this.Shader = shader;
         }
 
-        public virtual Vector2D CalculateUV(Shape subShape, Vector3D pointOfContact)
+        public abstract Vector3D CalculateNormal(Vector3D pointOfContact);
+
+        protected abstract Vector3D? CalculateRayContactPosition(Ray ray, out Shape subShape);
+
+        public abstract Vector2D CalculateUV(Vector3D pointOfContact);
+
+        public virtual bool HitsRay(Ray ray)
         {
-            throw new NotImplementedException();
+            return HitsRay(ray, out _, out Shape _);
         }
 
-        public abstract Vector3D CalculateNormal(Shape shape, Vector3D pointOfContact);
+        public virtual bool HitsRay(Ray ray, out Vector3D pointOfContact, out Shape subObject)
+        {
+            Vector3D? poc = CalculateRayContactPosition(ray, out subObject);
+
+            if (poc.HasValue)
+            {
+                pointOfContact = poc.Value;
+                return true;
+            }
+            else
+            {
+                pointOfContact = new Vector3D(0f, 0f, 0f);
+                return false;
+            }
+        }
     }
 }

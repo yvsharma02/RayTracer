@@ -37,16 +37,16 @@
                 UVTriangle = uvs.Value;
             }
 
-            SetLocalTransform(transform, applyTransformImmediately);
+            SetTransform(transform, applyTransformImmediately);
         }
 
         protected override void ApplyTransform()
         {
-            Transfomration newTransform = localTrannsform;
+            Transfomration newTransform = transform;
 
             Vector3D[] vertices = new Vector3D[3];
             for (int i = 0; i < 3; i++)
-                vertices[i] = newTransform.Transform(oldLocalTransform.InverseTransform(vertexTriangle[i]));
+                vertices[i] = newTransform.Transform(oldTransform.InverseTransform(vertexTriangle[i]));
 
             vertexTriangle = new Triangle(vertices[0], vertices[1], vertices[2]);
         
@@ -55,22 +55,22 @@
                 Vector3D[] normals = new Vector3D[3];
 
                 for (int i = 0; i < 3; i++)
-                    normals[i] = newTransform.Transform(oldLocalTransform.InverseTransform(NormalTriangle.Value[i])).Normalize();
+                    normals[i] = newTransform.Transform(oldTransform.InverseTransform(NormalTriangle.Value[i], false, true, false), false, true, false).Normalize();
 
                 NormalTriangle = new Triangle(normals[0], normals[1], normals[2]);
             }
-            DefaultNormal = newTransform.Transform(oldLocalTransform.InverseTransform(DefaultNormal, false, true, false), false, true, false).Normalize();
+            DefaultNormal = newTransform.Transform(oldTransform.InverseTransform(DefaultNormal, false, true, false), false, true, false).Normalize();
 
             base.ApplyTransform();
         }
 
-        protected override Vector3D? CalculateRayContactPosition(Ray ray, out WorldObject subShape)
+        protected override Vector3D? CalculateRayContactPosition(Ray ray, out Shape subShape)
         {
             subShape = null;
             return RTMath.RayTriangleIntersectionPoint(ray, vertexTriangle);
         }
 
-        public override Vector3D CalculateNormal(Shape shape, Vector3D pointOfContact)
+        public override Vector3D CalculateNormal(Vector3D pointOfContact)
         {
             if (!HasCustomNormals)
                 return DefaultNormal;
@@ -84,7 +84,7 @@
                 return DefaultNormal;
         }
 
-        public override Vector2D CalculateUV(Shape subShape, Vector3D pointOfContact)
+        public override Vector2D CalculateUV(Vector3D pointOfContact)
         {
             if (!HasCustomUVs)
                 throw new InvalidOperationException("Triangle does not have valid UVs.");

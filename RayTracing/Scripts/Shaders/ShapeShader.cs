@@ -4,11 +4,13 @@
     {
         public abstract RTColor CalculateBounceColor(Shape shape, ColoredRay[][] hittingRays, Vector3D pointOfContact, Vector3D outgoingRayDir);
 
-        public virtual Ray[] ReverseEmmitedRays(Shape shape, Ray reverseHitRay, Vector3D pointOfContact)
-        {
-            Vector3D normal = shape.CalculateNormal(null, pointOfContact);
+        public virtual Vector3D CalculateNormal(Shape subshape, Vector3D poc) => subshape.CalculateNormal(poc);
 
-            Vector3D reflectedDir = RTMath.CalculateReflectedRayDirection(reverseHitRay.DirectionReversed * -1f, normal);
+        public virtual Ray[] GetOutgoingRays(Shape shape, Ray tracingRay, Vector3D pointOfContact)
+        {
+            Vector3D normal = shape.CalculateNormal(pointOfContact);
+
+            Vector3D reflectedDir = RTMath.CalculateReflectedRayDirection(tracingRay.DirectionReversed * -1f, normal);
 
             return new Ray[] { new Ray(pointOfContact + (normal * Vector3D.EPSILON), reflectedDir) };
         }

@@ -51,10 +51,10 @@ namespace RayTracing
             Int2D resolution = world.GetMainCamera().Resolution;
             Int2D pixelsPerChunk = new Int2D(resolution.x / numberOfChunks.x, resolution.y / numberOfChunks.y);
 
-            Camera cam = world.GetMainCamera();
+//            Camera cam = world.GetMainCamera();
 
-            Log.InfoLine("Starting Rendering. Resolution: {0}x{1}, Bouces: {2}, RaysPerPixel: {3}, Multithreading: {4}",
-                resolution.x, resolution.y, cam.BounceLimit, cam.RaysPerPixel.x * cam.RaysPerPixel.y, multiThreadded);
+//            Log.InfoLine("Starting Rendering. Resolution: {0}x{1}, Bouces: {2}, RaysPerPixel: {3}, Multithreading: {4}",
+//                resolution.x, resolution.y, cam.BounceLimit, cam.RaysPerPixel.x * cam.RaysPerPixel.y, multiThreadded);
 
             System.Drawing.Color[,] renderedImage = new System.Drawing.Color[resolution.x, resolution.y];
 
@@ -82,7 +82,7 @@ namespace RayTracing
 
                             for (int l = 0; l < clrs.GetLength(0); l++)
                                 for (int m = 0; m < clrs.GetLength(1); m++)
-                                    renderedImage[bs.x + l, bs.y + m] = clrs[l, m].ToARGB();
+                                    renderedImage[bs.x + l, bs.y + m] = clrs[l, m];
 
                             int numberOfChunksRendered = 0;
                             int totalChunks = completedList.GetLength(0) * completedList.GetLength(1);

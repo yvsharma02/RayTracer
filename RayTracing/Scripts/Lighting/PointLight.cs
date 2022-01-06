@@ -6,28 +6,11 @@
 
         public readonly float HitRadius;
 
-        public Vector3D Position { get => LocalTransform.Position; }
+        public Vector3D Position { get => Transform.Position; }
 
         public PointLight(RTColor color, Transfomration transform, float hitRadius = DEFAULT_HIT_RADIUS) : base(transform, color)
         {
             this.HitRadius = hitRadius;
-        }
-
-        public override bool HitsRay(Ray ray, out Vector3D pointOfContact, out WorldObject subLight)
-        {
-            subLight = null;
-            return RTMath.RayHitsSphere(ray, Position, HitRadius, out pointOfContact);
-        }
-
-        public override bool HitsRay(Ray ray)
-        {
-            return RTMath.RayHitsSphere(ray, Position, HitRadius);
-        }
-
-        protected override Vector3D? CalculateRayContactPosition(Ray ray, out WorldObject subLight)
-        {
-            subLight = null;
-            return RTMath.RaySpherePointOfContact(ray, Position, HitRadius);
         }
 
         public override ColoredRay[] ReachingRays(World world, Vector3D point)

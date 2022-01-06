@@ -33,14 +33,12 @@
                 Triangle? uvTriangle = validUVs ? new Triangle(uvs[uvTriangles[t]], uvs[uvTriangles[t + 1]], uvs[uvTriangles[t + 2]]) : null;
                 Triangle? normalTriangle = validNormals ? new Triangle(normals[normalTriangles[t]], normals[normalTriangles[t + 1]], normals[normalTriangles[t + 2]]) : null;
 
-//                Vector3D? defaultNormal = identicalNormals ? normals[normalTriangles[t]] : null;
-
                 meshTriangles[i] = new MeshTriangle(new Transfomration(), vertexTriangle, identicalNormals ? null : normalTriangle, uvTriangle, shader, null, false);
 
                 t += 3;
             }
 
-            SetLocalTransform(transform, true);
+            SetTransform(transform, true);
         }
 
         protected override void ApplyTransform()
@@ -51,7 +49,7 @@
                 return;
 
             for (int i = 0; i < meshTriangles.Length; i++)
-                meshTriangles[i].SetLocalTransform(localTrannsform);
+                meshTriangles[i].SetLocalTransform(transform);
 
             RecalculateBounds();
         
@@ -82,12 +80,12 @@
             bounds = new Bounds(new Vector3D(minBounds[0], minBounds[1], minBounds[2]), new Vector3D(maxBounds[0], maxBounds[1], maxBounds[2]));
         }
 
-        public override Vector3D CalculateNormal(Shape shape, Vector3D pointOfContact)
+        public override Vector3D CalculateNormal(Vector3D pointOfContact)
         {
-            return shape.CalculateNormal(null, pointOfContact);
+            throw new InvalidOperationException("Subshape must be useed to calculate norma.");
         }
 
-        protected override Vector3D? CalculateRayContactPosition(Ray ray, out WorldObject subshape)
+        protected override Vector3D? CalculateRayContactPosition(Ray ray, out Shape subshape)
         {
             Vector3D? boundsPOC = RTMath.RayBoundsContact(ray, MeshBounds.LowerBounds, MeshBounds.UpperBounds);
 
@@ -104,7 +102,7 @@
             for (int i = 0; i < meshTriangles.Length; i++)
             {
                 Vector3D poc;
-                if (meshTriangles[i].HitsRay(ray, out poc, out WorldObject _))
+                if (meshTriangles[i].HitsRay(ray, out poc, out Shape _))
                 {
                     float distSq = Vector3D.DistanceSq(ray.Origin, poc);
 
@@ -121,12 +119,9 @@
             return closestShapePOC;
         }
 
-        public override Vector2D CalculateUV(Shape shape, Vector3D pointOfContact)
+        public override Vector2D CalculateUV(Vector3D pointOfContact)
         {
-            MeshTriangle triangle = (MeshTriangle)shape;
-
-            return triangle.CalculateUV(null, pointOfContact);
-
+            throw new InvalidOperationException("Subshape must be used to calculate UV");
         }
     }
 }
