@@ -8,7 +8,7 @@
 
         private const string TEST_MESH_2_LOCATION = @"D:\Projects\VisualStudio\RayTracing\Assets\Plane.obj";
 
-        private const bool MULTI_THREADING_ENABLED = true;
+        private const bool MULTI_THREADING_ENABLED = false;
 
         private const string SAVE_LOCATION = @"D:\Projects\VisualStudio\RayTracing\Generated";
 
@@ -67,14 +67,10 @@
             world.AddShape(builder2.Build(planeTransform, new DefaultShapeShader(TextureLoader.Load(TEST_TEXTURE_LOCATION), TextureLoader.Load(TEST_NORMAL_MAP_LOCATION)), false));
 
             world.AddLightSource(new GlobalLight(new Transfomration(new Vector3D(0, 50, 0)), sunDir, sunColor));
+
+            String location = Path.Combine(SAVE_LOCATION, DateTime.Now.ToString().Replace(":", "-") + ".png");
+            Renderer.RenderAndWriteToDisk(world, world.GetMainCamera(), new Int2D(CHUNKS_X, CHUNKS_Y), MULTI_THREADING_ENABLED, location);
         }
 
-        public void Render()
-        {
-            string fileName = DateTime.Now.ToString().Replace(":", "-") + ".png";
-
-            Renderer render = new Renderer(new Int2D(CHUNKS_X, CHUNKS_Y), world, Path.Combine(SAVE_LOCATION, fileName));
-            render.Render(MULTI_THREADING_ENABLED);
-        }
     }
 }

@@ -22,12 +22,6 @@ namespace RayTracing
             {
                 for (int j = 0; j < RaysPerPixel.y; j++)
                 {
-                    //                    Vector3D subPixelPosition = pixelTopLeft + new Vector3D(pixelSize.x * ((float) (i + 1) / (RaysPerPixel.x + 1)), ((float) pixelSize.y * (j + 1) / ( RaysPerPixel.y + 1)));
-
-                    //                    rays[c++] = new Ray(rayOrigin, subPixelPosition - rayOrigin);
-
-
-
                     float percentX = (pixel.x * RaysPerPixel.x + i) / (float)((camera.Resolution.x + 1) * RaysPerPixel.x);
                     float percentY = (pixel.y * RaysPerPixel.y + j) / (float)((camera.Resolution.y + 1) * RaysPerPixel.y);
 
@@ -41,7 +35,7 @@ namespace RayTracing
             return rays;
         }
 
-        public override Color CalculateFinalPixelColor(Camera camera, RTColor[] hittingRayColors)
+        public override Color CalculateFinalPixelColor(Camera camera, Int2D pixelIndex, RTColor[] hittingRayColors)
         {
             double totalIntensity = 0;
 

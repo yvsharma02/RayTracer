@@ -10,7 +10,6 @@
 
             TestScene scene = new TestScene();
 
-            scene.Render();
         }
     }
 }
