@@ -1,37 +1,23 @@
 ﻿namespace RayTracing
 {
-    public struct ColoredRay
+    public class ColoredRay
     {
+        public readonly WorldObject ImmediateSource;
         public readonly RTColor DestinationColor;
         public readonly RTColor SourceColor;
+
         public readonly Vector3D Origin;
         public readonly Vector3D Direction;
-
         public readonly Vector3D PointOfContact;
 
-        public ColoredRay(Vector3D origin, Vector3D dir, RTColor emmitedColor, Vector3D pointOfContact)
+        public ColoredRay(Vector3D origin, Vector3D dir, Vector3D pointOfContact, RTColor srcColor, RTColor destinationColor, WorldObject immediateSource)
         {
-            this.SourceColor = emmitedColor;
+            this.ImmediateSource = immediateSource;
+            this.SourceColor = srcColor;
             this.Origin = origin;
             this.Direction = dir.Normalize();
-
             this.PointOfContact = pointOfContact;
-
-            double finalIntensity = 0f;
-
-            if (!Origin.IsInfinity)
-            {
-                float distSq = Origin.DistanceFromSq(pointOfContact);
-
-                finalIntensity = SourceColor.Intensity / distSq;
-
-                if (finalIntensity >= RTColor.MAX_INTENSITY)
-                    finalIntensity = RTColor.MAX_INTENSITY;
-            }
-            else
-                finalIntensity = SourceColor.Intensity;
-
-            this.DestinationColor = new RTColor(finalIntensity, SourceColor.R, SourceColor.G, SourceColor.B);
+            this.DestinationColor = destinationColor;
         }
     }
 }

@@ -4,7 +4,7 @@ namespace RayTracing
 {
     public struct RTColor
     {
-        public const double MAX_INTENSITY = 100000000;
+        public const double MAX_INTENSITY = 100;
 
         public static readonly RTColor Black = new RTColor(0, 0, 0, 0);
 
@@ -43,62 +43,22 @@ namespace RayTracing
             }
         }
 
-        /*
-        public static RTColor Add(RTColor clrA, RTColor clrB, Ray rayA, Ray rayB, Ray rayOut, float dropOffStrength)
+        // Not trying to be accurate, just trying to look good.
+        public static RTColor CalculateDropOffColor(RTColor color, Vector3D a, Vector3D b)
         {
-            throw new NotImplementedException();
-        }
-        */
-
-        public static RTColor Average(params RTColor[] clrs)
-        {
-            double _i = 0f;
-            float r = 0f, g = 0f, b = 0f;
-
-            for (int i = 0; i < clrs.Length; i++)
+            if (!a.IsInfinity && !b.IsInfinity)
             {
-                _i += clrs[i].Intensity / ((double) clrs.Length);
-                r += clrs[i].R / ((float)clrs.Length);
-                g += clrs[i].G / ((float)clrs.Length);
-                b += clrs[i].B / ((float)clrs.Length);
+                double distSq = Vector3D.DistanceSq(a, b);
+
+                if (distSq > 1)
+                    distSq = Math.Sqrt(distSq);
+
+                distSq /= MAX_INTENSITY;
+
+                return new RTColor(color.Intensity / distSq, color.R, color.G, color.B);
             }
-
-            return new RTColor(_i, r, g, b);
+            return color;
         }
-
-        public static RTColor Average(RTColor[][] clrs)
-        {
-            int count = 0;
-            for (int i = 0; i < clrs.Length; i++)
-                count += clrs[i].Length;
-
-            double _i = 0f;
-            float r = 0f, g = 0f, b = 0f;
-
-            for (int i = 0; i < clrs.GetLength(0); i++)
-            {
-                for (int j = 0; j < clrs[i].Length; j++)
-                {
-                    _i += clrs[i][j].Intensity / ((double) count);
-                    r += clrs[i][j].R / ((float)count);
-                    g += clrs[i][j].G / ((float)count);
-                    b += clrs[i][j].B / ((float)count);
-                }
-            }
-
-            return new RTColor(_i, r, g, b);
-        }
-
-        public static RTColor Add(RTColor clrA, RTColor clrB)
-        {
-            double i = clrA.Intensity + clrB.Intensity;
-            float r = (float) (2 * (clrA.R * clrA.Intensity + clrB.R * clrB.Intensity) / i);
-            float g = (float) (2 * (clrA.B * clrA.Intensity + clrB.B * clrB.Intensity) / i);
-            float b = (float) (2 * (clrA.B * clrA.Intensity + clrB.B * clrB.Intensity) / i);
-
-            return new RTColor(i, r, g, b);
-        }
-
         public System.Drawing.Color ToARGB()
         {
             float r = (float) (Intensity / MAX_INTENSITY) * R;

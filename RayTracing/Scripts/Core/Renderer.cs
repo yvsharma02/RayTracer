@@ -78,7 +78,7 @@ namespace RayTracing
                 }
 
                 Task.WaitAll(tasks);
-                
+
             }
             else
             {

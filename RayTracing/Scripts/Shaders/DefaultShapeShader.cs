@@ -54,22 +54,16 @@
                 return new Ray[] { new Ray(pointOfContact, RTMath.CalculateReflectedRayDirection(tracingRay.DirectionReversed, CalculateNormal(shape, pointOfContact))) };
             }
             else
-                return base.GetOutgoingRays(null, tracingRay, pointOfContact);
+                return base.GetOutgoingRays(shape, tracingRay, pointOfContact);
         }
         public override RTColor CalculateBounceColor(Shape shape, ColoredRay[][] hittingRays, Vector3D pointOfContact, Vector3D bouncedRayDirection)
         {
-            int count = 0;
-
             double totalIntensity = 0f;
 
             for (int i = 0; i < hittingRays.Length; i++)
-            {
-                count += hittingRays[i].Length;
                 for (int j = 0; j < hittingRays[i].Length; j++)
                     totalIntensity += hittingRays[i][j].DestinationColor.Intensity;
-            }
 
-            double _i = 0f;
             float r = 0f, g = 0f, b = 0f;
 
             if (totalIntensity > Vector3D.EPSILON)
@@ -78,17 +72,16 @@
                 {
                     for (int j = 0; j < hittingRays[i].Length; j++)
                     {
-                        float dot = Vector3D.Dot(hittingRays[i][j].Direction * -1f, CalculateNormal(shape, pointOfContact));
+                        float dot = Vector3D.Dot(hittingRays[i][j].Direction.Normalize() * -1f, CalculateNormal(shape, pointOfContact));
 
                         if (dot < 0f)
                             dot = 0f;
 
                         ColoredRay ray = hittingRays[i][j];
-                        _i += ray.DestinationColor.Intensity;
-                        r += (float)(ray.SourceColor.R * dot * (ray.DestinationColor.Intensity / totalIntensity));
-                        g += (float)(ray.SourceColor.G * dot * (ray.DestinationColor.Intensity / totalIntensity));
-                        b += (float)(ray.SourceColor.B * dot * (ray.DestinationColor.Intensity / totalIntensity));
 
+                        r += (float)(ray.DestinationColor.R * dot * (ray.DestinationColor.Intensity / totalIntensity));
+                        g += (float)(ray.DestinationColor.G * dot * (ray.DestinationColor.Intensity / totalIntensity));
+                        b += (float)(ray.DestinationColor.B * dot * (ray.DestinationColor.Intensity / totalIntensity));
                     }
                 }
             }
@@ -111,7 +104,7 @@
                 b = (b + color.B) / 2f;
             }
 
-            return new RTColor(_i, r, g, b);
+            return new RTColor(totalIntensity, r, g, b);
         }
     }
 }

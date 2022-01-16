@@ -52,7 +52,7 @@ namespace RayTracing
             }
         }
 
-        public Color GetColorFromNormalizedCoords(float x, float y)
+        public Color GetColorFromUV(float x, float y)
         {
             if (x < 0 || y < 0 || x > 1f || y > 1f)
                 throw new ArgumentException("x and y should be between 0 and 1f.");
@@ -61,6 +61,11 @@ namespace RayTracing
             int finalY = (int)(y * Height);
 
             return pixels[finalX, finalY];
+        }
+
+        public Color GetColorFromUV(Vector2D uv)
+        {
+            return GetColorFromUV(uv.x, uv.y);
         }
     }
 }

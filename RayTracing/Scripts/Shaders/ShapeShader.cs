@@ -14,5 +14,10 @@
 
             return new Ray[] { new Ray(pointOfContact + (normal * Vector3D.EPSILON), reflectedDir) };
         }
+
+        public virtual RTColor CalculateDestinationColor(RTColor color, Vector3D src, Vector3D destination)
+        {
+            return RTColor.CalculateDropOffColor(color, src, destination);
+        }
     }
 }

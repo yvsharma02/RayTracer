@@ -7,7 +7,7 @@
         public static Vector3D Zero => new Vector3D();
         public static Vector3D One => new Vector3D(1, 1, 1);
 
-        public const float EPSILON = 0.00001f;
+        public const float EPSILON = 0.001f;
 
         public readonly float x;
         public readonly float y;

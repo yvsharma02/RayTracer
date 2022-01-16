@@ -15,7 +15,7 @@
             Shape shape = world.ClosestShapeHit(new Ray(point, Direction * -1f), out Vector3D poc);
 
             if (shape == null)
-                return new ColoredRay[] { new ColoredRay(Direction * float.NegativeInfinity, Direction, LightColor, point) };
+                return new ColoredRay[] { new ColoredRay(Direction * float.NegativeInfinity, Direction, point, LightColor, LightColor, this) };
             else
                 return new ColoredRay[0];
         }
