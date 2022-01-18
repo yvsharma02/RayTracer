@@ -13,15 +13,15 @@
             this.HitRadius = hitRadius;
         }
 
-        public override ColoredRay[] ReachingRays(World world, Vector3D point)
+        public override ColoredRay ReachingRays(World world, Vector3D point)
         {
             Vector3D dirFromPointToLight = Position - point;
 
             Shape closestShapeToPoint = world.ClosestShapeHit(new Ray(point, dirFromPointToLight), out Vector3D poc);
             if (closestShapeToPoint == null || poc.DistanceFromSq(point) >= poc.DistanceFromSq(Position))
-                return new ColoredRay[] { new ColoredRay(Position, dirFromPointToLight * -1f, point, LightColor, new RTColor(LightColor.Intensity / Vector3D.DistanceSq(point, Position), LightColor.R, LightColor.G, LightColor.B), this) };
+                return new ColoredRay(Position, dirFromPointToLight * -1f, point, LightColor, new RTColor(LightColor.Intensity / Vector3D.DistanceSq(point, Position), LightColor.R, LightColor.G, LightColor.B));
             else
-                return new ColoredRay[] { new ColoredRay(Position, dirFromPointToLight * -1f, point, RTColor.Black, RTColor.Black, null) };
+                return new ColoredRay(Position, dirFromPointToLight * -1f, point, RTColor.Black, RTColor.Black);
         }
     }
 }

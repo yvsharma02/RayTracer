@@ -1,4 +1,4 @@
-﻿﻿namespace RayTracing
+﻿namespace RayTracing
 {
     public class AdvanceShapeShader : ShapeShader
     {
@@ -33,13 +33,12 @@
             return transform.Transform(nmNormal).Normalize();
         }
 
-        public override RTColor CalculateBounceColor(Shape shape, ColoredRay[][] hittingRays, Vector3D pointOfContact, Vector3D outgoingRayDir)
+        public override RTColor CalculateBounceColor(Shape shape, EmmisionChain[] hittingRays, Vector3D pointOfContact, Vector3D outgoingRayDir)
         {
             double totalIntensity = 0f;
 
             for (int i = 0; i < hittingRays.Length; i++)
-                for (int j = 0; j < hittingRays[i].Length; j++)
-                    totalIntensity += hittingRays[i][j].DestinationColor.Intensity;
+                    totalIntensity += hittingRays[i].EmmitedRay.DestinationColor.Intensity;
 
             float r = 0f;
             float g = 0f;
@@ -47,23 +46,19 @@
 
             for (int i = 0; i < hittingRays.Length; i++)
             {
-                for (int j = 0; j < hittingRays[i].Length; j++)
-                {
-                    float dot = 1f;
+                float dot = 1f;
 
-                    if (!hittingRays[i][j].Direction.IsZero)
-                        dot = Vector3D.Dot(hittingRays[i][j].Direction * -1f, CalculateNormal(shape, pointOfContact));
+                if (!hittingRays[i][j].Direction.IsZero)
+                    dot = Vector3D.Dot(hittingRays[i][j].Direction * -1f, CalculateNormal(shape, pointOfContact));
 
-                    if (dot < 0f)
-                        dot = 0f;
+                if (dot < 0f)
+                    dot = 0f;
 
-                    RTColor clr = hittingRays[i][j].SourceColor;
+                RTColor clr = hittingRays[i].EmmitedRay.DestinationColor;
 
-                    r += clr.R * dot;
-                    g += clr.G * dot;
-                    b += clr.B * dot;
-
-                }
+                r += clr.R * dot;
+                g += clr.G * dot;
+                b += clr.B * dot;
             }
 
             if (MainTexture != null)
@@ -73,8 +68,6 @@
                 g = (textureClr.G + LightingStrength * g) / (1f + LightingStrength);
                 b = (textureClr.B + LightingStrength * b) / (1f + LightingStrength);
             }
-
-
 
             return new RTColor(totalIntensity * (1 - Absorbance), r, g, b);
         }

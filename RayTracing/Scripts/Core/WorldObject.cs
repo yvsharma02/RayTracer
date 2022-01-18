@@ -6,6 +6,8 @@
         protected Transfomration transform = new Transfomration(Vector3D.Zero, Vector3D.Zero, new Vector3D(1f, 1f, 1f));
 
         protected bool newTransformApplied = false;
+        
+        public abstract int TypeID { get; }
 
         public Transfomration Transform
         {
@@ -14,6 +16,7 @@
                 return transform;
             }
         }
+
         public void SetLocalTransform(Transfomration newTransform)
         {
             SetTransform(newTransform, true);

@@ -44,7 +44,7 @@
 
             world.SetMainCamera(cam);
 
-            ShapeShader sphereShader = new DefaultShapeShader(null, null);//, 0f, 1f);
+            ShapeShader sphereShader = new DefaultShapeShader(null, null);
             MeshBuilder builder = MeshReader.ReadObj(TEST_MESH_LOCATION);
             world.AddShape(builder.Build(sphereTransform, sphereShader, true));
             MeshBuilder builder2 = MeshReader.ReadObj(TEST_MESH_2_LOCATION);

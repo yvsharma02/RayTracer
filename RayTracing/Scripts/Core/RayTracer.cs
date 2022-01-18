@@ -37,7 +37,7 @@ namespace RayTracing
                     Camera cam = world.GetMainCamera();
                     Ray[] emmitedRays = cam.Shader.GetEmmitedRays(cam, new Int2D(startingPixelIndex.x + i, startingPixelIndex.y + j));
 
-                    ColoredRay[] raysReachingPixel = new ColoredRay[emmitedRays.Length];
+                    EmmisionChain[] raysReachingPixel = new EmmisionChain[emmitedRays.Length];
 
                     for (int k = 0; k < raysReachingPixel.Length; k++)
                         raysReachingPixel[k] = StartTrace(emmitedRays[k], world, cam);
@@ -47,12 +47,12 @@ namespace RayTracing
             }
         }
 
-        private static ColoredRay StartTrace(Ray reverseRay, World world, Camera camera)
+        private static EmmisionChain StartTrace(Ray reverseRay, World world, Camera camera)
         {
             return Trace(world, camera, camera.BounceLimit, reverseRay, out Vector3D _);
         }
 
-        private static ColoredRay Trace(World world, Camera renderCamera, int bouncesRemaining, Ray tracingRay, out Vector3D pointOfContact)
+        private static EmmisionChain Trace(World world, Camera renderCamera, int bouncesRemaining, Ray tracingRay, out Vector3D pointOfContact)
         {
             Vector3D truePOC = default(Vector3D);
             Shape closestShape = world.ClosestShapeHit(tracingRay, out truePOC);
@@ -63,39 +63,43 @@ namespace RayTracing
                 pointOfContact = truePOC + (normal * Vector3D.EPSILON);
 
                 int c = 0;
-                ColoredRay[][] incomingRays = null;
+                EmmisionChain[] incomingRays = null;
 
                 if (bouncesRemaining > 0)
                 {
                     Ray[] outgoingRays = closestShape.Shader.GetOutgoingRays(closestShape, tracingRay, truePOC);
                     if (outgoingRays != null)
                     {
-                        incomingRays = new ColoredRay[world.LightSourcesCount + outgoingRays.Length][];
+                        incomingRays = new EmmisionChain[world.LightSourcesCount + outgoingRays.Length];
                         for (int i = 0; i < outgoingRays.Length; i++)
                         {
                             Vector3D incomingRaySource;
-                            ColoredRay ray = Trace(world, renderCamera, bouncesRemaining - 1, new Ray(pointOfContact, outgoingRays[i].Direction), out incomingRaySource);
-                            RTColor destClr = closestShape.Shader.CalculateDestinationColor(ray.SourceColor, pointOfContact, tracingRay.Origin);
-                            incomingRays[c++] = new ColoredRay[] { new ColoredRay(incomingRaySource, ray.Direction, pointOfContact, ray.SourceColor, destClr, closestShape) };
+                            incomingRays[c++] = Trace(world, renderCamera, bouncesRemaining - 1, new Ray(pointOfContact, outgoingRays[i].Direction), out incomingRaySource);
                         }
                     }
                 }
 
                 if (incomingRays == null)
-                    incomingRays = new ColoredRay[world.LightSourcesCount][];
+                    incomingRays = new EmmisionChain[world.LightSourcesCount];
 
                 for (int i = 0; i < world.LightSourcesCount; i++)
-                    incomingRays[c++] = world.GetLightSource(i).ReachingRays(world, pointOfContact);
+                {
+                    LightSource ls = world.GetLightSource(i);
+                    incomingRays[c++] = new EmmisionChain(ls, ls.ReachingRays(world, pointOfContact), null);
+                }
 
                 RTColor srcColor = closestShape.Shader.CalculateBounceColor(closestShape, incomingRays, truePOC, tracingRay.DirectionReversed);
                 RTColor destinationClr = closestShape.Shader.CalculateDestinationColor(srcColor, pointOfContact, tracingRay.Direction);
 
-                return new ColoredRay(truePOC, tracingRay.DirectionReversed, tracingRay.Origin, srcColor, destinationClr, closestShape);
+                ColoredRay ray = new ColoredRay(truePOC, tracingRay.DirectionReversed, tracingRay.Origin, srcColor, destinationClr);
+
+                return new EmmisionChain(closestShape, ray, incomingRays);
             }
             else
             {
                 pointOfContact = tracingRay.Origin + tracingRay.Direction * float.PositiveInfinity;
-                return new ColoredRay(pointOfContact, tracingRay.DirectionReversed, tracingRay.Origin, renderCamera.NoHitColor, renderCamera.NoHitColor, null);
+                ColoredRay ray = new ColoredRay(pointOfContact, tracingRay.DirectionReversed, tracingRay.Origin, renderCamera.NoHitColor, renderCamera.NoHitColor);
+                return new EmmisionChain(renderCamera, ray, null);
             }
         }
     }

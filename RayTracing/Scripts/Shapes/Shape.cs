@@ -2,6 +2,10 @@
 {
     public abstract class Shape : WorldObject
     {
+        public const int SHAPE_ID = 2;
+
+        public override int TypeID => SHAPE_ID;
+
         public ShapeShader Shader { get; protected set; }
 
         public Shape(Transfomration transform, ShapeShader shader) : base(transform)

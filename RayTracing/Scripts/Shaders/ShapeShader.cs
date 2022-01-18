@@ -2,9 +2,9 @@
 {
     public abstract class ShapeShader
     {
-        public abstract RTColor CalculateBounceColor(Shape shape, ColoredRay[][] hittingRays, Vector3D pointOfContact, Vector3D outgoingRayDir);
+        public abstract RTColor CalculateBounceColor(Shape shape, EmmisionChain[] hittingRays, Vector3D pointOfContact, Vector3D outgoingRayDir);
 
-        public virtual Vector3D CalculateNormal(Shape subshape, Vector3D poc) => subshape.CalculateNormal(poc);
+        public virtual Vector3D CalculateNormal(Shape shape, Vector3D poc) => shape.CalculateNormal(poc);
 
         public virtual Ray[] GetOutgoingRays(Shape shape, Ray tracingRay, Vector3D pointOfContact)
         {

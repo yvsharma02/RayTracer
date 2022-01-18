@@ -35,12 +35,12 @@ namespace RayTracing
             return rays;
         }
 
-        public override Color CalculateFinalPixelColor(Camera camera, Int2D pixelIndex, ColoredRay[] hittinRays)
+        public override Color CalculateFinalPixelColor(Camera camera, Int2D pixelIndex, EmmisionChain[] hittinRays)
         {
             double totalIntensity = 0;
 
             for (int i = 0; i < hittinRays.Length; i++)
-                totalIntensity += hittinRays[i].SourceColor.Intensity;
+                totalIntensity += hittinRays[i].EmmitedRay.SourceColor.Intensity;
 
             float r = 0;
             float g = 0;
@@ -48,11 +48,11 @@ namespace RayTracing
 
             for (int i = 0; i < hittinRays.Length; i++)
             {
-                float multiplier = (float)((hittinRays[i].SourceColor.Intensity / RTColor.MAX_INTENSITY) / hittinRays.Length);
+                float multiplier = (float)((hittinRays[i].EmmitedRay.SourceColor.Intensity / RTColor.MAX_INTENSITY) / hittinRays.Length);
 
-                r += hittinRays[i].SourceColor.R * multiplier;
-                g += hittinRays[i].SourceColor.G * multiplier;
-                b += hittinRays[i].SourceColor.B * multiplier;
+                r += hittinRays[i].EmmitedRay.SourceColor.R * multiplier;
+                g += hittinRays[i].EmmitedRay.SourceColor.G * multiplier;
+                b += hittinRays[i].EmmitedRay.SourceColor.B * multiplier;
             }
              
             if (r > 255)
