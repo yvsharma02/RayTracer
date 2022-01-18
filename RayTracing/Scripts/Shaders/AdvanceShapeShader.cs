@@ -48,8 +48,8 @@
             {
                 float dot = 1f;
 
-                if (!hittingRays[i][j].Direction.IsZero)
-                    dot = Vector3D.Dot(hittingRays[i][j].Direction * -1f, CalculateNormal(shape, pointOfContact));
+                if (!hittingRays[i].EmmitedRay.Direction.IsZero)
+                    dot = Vector3D.Dot(hittingRays[i].EmmitedRay.Direction * -1f, CalculateNormal(shape, pointOfContact));
 
                 if (dot < 0f)
                     dot = 0f;

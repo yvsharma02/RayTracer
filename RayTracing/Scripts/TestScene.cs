@@ -24,7 +24,7 @@
 
         private const int RAYS_PER_PIXEL_X = 4;
         private const int RAYS_PER_PIXEL_Y = 4;
-
+         
         private const int BOUCES = 1;
 
         private World world;
