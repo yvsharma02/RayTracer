@@ -71,14 +71,17 @@
                 {
                     float dot = Vector3D.Dot(hittingRays[i].EmmitedRay.Direction.Normalize() * -1f, CalculateNormal(shape, pointOfContact));
 
+                    float weight = 1f; //(ray.DestinationColor.Intensity / totalIntensity)
+
                     if (dot < 0f)
                         dot = 0f;
 
+
                     ColoredRay ray = hittingRays[i].EmmitedRay;
 
-                    r += (float)(ray.DestinationColor.R * dot * (ray.DestinationColor.Intensity / totalIntensity));
-                    g += (float)(ray.DestinationColor.G * dot * (ray.DestinationColor.Intensity / totalIntensity));
-                    b += (float)(ray.DestinationColor.B * dot * (ray.DestinationColor.Intensity / totalIntensity));
+                    r += (float)(ray.DestinationColor.R * dot * weight);
+                    g += (float)(ray.DestinationColor.G * dot * weight);
+                    b += (float)(ray.DestinationColor.B * dot * weight);
                 }
             }
             else

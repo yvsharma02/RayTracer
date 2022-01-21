@@ -7,7 +7,13 @@
         public readonly WorldObject Emmiter;
         public readonly ColoredRay EmmitedRay;
 
-        public int ParentSourcesCount { get => parentSources.Length; }
+        public int ParentSourcesCount
+        {
+            get
+            {
+                return parentSources == null ? 0 : parentSources.Length;
+            }
+        }
 
         public EmmisionChain(WorldObject Emmiter, ColoredRay emmitedRay, params EmmisionChain[] parents)
         {

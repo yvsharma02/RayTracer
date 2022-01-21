@@ -12,7 +12,7 @@ namespace RayTracing
         {
             get
             {
-                return pixels.GetLength(0);
+                return pixels.GetLength(1);
             }
         }
 
@@ -20,7 +20,7 @@ namespace RayTracing
         {
             get
             {
-                return pixels.GetLength(1);
+                return pixels.GetLength(0);
             }
         }
 
@@ -57,8 +57,8 @@ namespace RayTracing
             if (x < 0 || y < 0 || x > 1f || y > 1f)
                 throw new ArgumentException("x and y should be between 0 and 1f.");
 
-            int finalX = (int)(x * Width);
-            int finalY = (int)(y * Height);
+            int finalX = (int)(x * (Width - 1));
+            int finalY = (int)(y * (Height - 1));
 
             return pixels[finalX, finalY];
         }

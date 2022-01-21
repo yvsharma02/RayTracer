@@ -10,7 +10,7 @@ namespace RayTracing
         public static readonly Vector3D DefaultCameraX = new Vector3D(1, 0, 0);
         public static readonly Vector3D DefaultCameraY = new Vector3D(0, 1, 0);
 
-        public override int TypeID => 3;
+        public override int TypeID => (int) TypeIDs.Camera;
 
         private Vector3D transformedForward;
         private Vector3D transformedX;

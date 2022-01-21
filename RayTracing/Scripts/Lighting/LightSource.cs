@@ -2,9 +2,7 @@
 {
     public abstract class LightSource : WorldObject
     {
-        public const int LIGHT_ID = 1;
-
-        public override int TypeID => LIGHT_ID;
+        public override int TypeID => (int) TypeIDs.Light;
 
         private RTColor emmisionColor;
 

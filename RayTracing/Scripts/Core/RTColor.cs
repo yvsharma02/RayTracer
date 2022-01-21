@@ -43,6 +43,54 @@ namespace RayTracing
             }
         }
 
+        public RTColor(double intensity, int r, int g, int b)
+        {
+            if (intensity > MAX_INTENSITY)
+                intensity = MAX_INTENSITY;
+
+            if (r > 255)
+                r = 255;
+            if (g > 255)
+                g = 255;
+            if (b > 255)
+                b = 255;
+
+            if (r < 0)
+                r = 0;
+            if (g < 0)
+                g = 0;
+            if (b < 0)
+                b = 0;
+
+            this.intensity = intensity;
+            rgb = (r << 16) | (g << 8) | b;
+        }
+
+        public RTColor(double intensity, float r, float g, float b) : this(intensity, (int)r, (int)g, (int)b) { }
+
+        public override string ToString()
+        {
+            return String.Format("(I:{0}, R:{1}, G:{2}, B:{3})", Intensity, R, G, B);
+        }
+
+        public override bool Equals([NotNullWhen(true)] object? obj)
+        {
+            if (!(obj is RTColor))
+                return false;
+            RTColor other = (RTColor)obj;
+
+            return other.rgb == rgb && other.Intensity == Intensity;
+        }
+
+        public System.Drawing.Color ToARGB()
+        {
+            float r = (float) (Intensity / MAX_INTENSITY) * R;
+            float g = (float) (Intensity / MAX_INTENSITY) * G;
+            float b = (float) (Intensity / MAX_INTENSITY) * B;
+
+            return System.Drawing.Color.FromArgb(255, (int)r, (int)g, (int)b);
+        }
+
         // Not trying to be accurate, just trying to look good.
         public static RTColor CalculateDropOffColor(RTColor color, Vector3D a, Vector3D b)
         {
@@ -59,49 +107,15 @@ namespace RayTracing
             }
             return color;
         }
-        public System.Drawing.Color ToARGB()
-        {
-            float r = (float) (Intensity / MAX_INTENSITY) * R;
-            float g = (float) (Intensity / MAX_INTENSITY) * G;
-            float b = (float) (Intensity / MAX_INTENSITY) * B;
-
-            return System.Drawing.Color.FromArgb(255, (int)r, (int)g, (int)b);
-        }
 
         public static RTColor Multiply(RTColor clr, float multiplier)
         {
             return new RTColor(clr.Intensity * multiplier, clr.R, clr.G, clr.B);
         }
 
-        public RTColor(double intensity, int r, int g, int b)
-        {
-            if (intensity > MAX_INTENSITY)
-                intensity = MAX_INTENSITY;
-
-            this.intensity = intensity;
-            rgb = (r << 16) | (g << 8) | b;
-        }
-
-        public RTColor(double intensity, float r, float g, float b) : this(intensity, (int) r, (int) g, (int) b) {}
-
         public static RTColor operator *(RTColor a, float multiplier)
         {
             return RTColor.Multiply(a, multiplier);
         }
-
-        public override string ToString()
-        {
-            return String.Format("(I:{0}, R:{1}, G:{2}, B:{3})", Intensity, R, G, B);
-        }
-
-        public override bool Equals([NotNullWhen(true)] object? obj)
-        {
-            if(!(obj is RTColor))
-                return false;
-            RTColor other = (RTColor) obj;
-
-            return other.rgb == rgb && other.Intensity == Intensity;
-        }
-
     }
 }
