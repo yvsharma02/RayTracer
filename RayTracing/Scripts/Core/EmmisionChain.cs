@@ -4,7 +4,7 @@
     {
         private EmmisionChain[] parentSources;
 
-        public readonly WorldObject Emmiter;
+        public readonly WorldObject LastEmmiter;
         public readonly ColoredRay EmmitedRay;
 
         public int ParentSourcesCount
@@ -15,9 +15,9 @@
             }
         }
 
-        public EmmisionChain(WorldObject Emmiter, ColoredRay emmitedRay, params EmmisionChain[] parents)
+        public EmmisionChain(WorldObject lastEmmiter, ColoredRay emmitedRay, params EmmisionChain[] parents)
         {
-            this.Emmiter = Emmiter;
+            this.LastEmmiter = lastEmmiter;
             this.EmmitedRay = emmitedRay;
 
             this.parentSources = parents;

@@ -13,6 +13,6 @@
             this.emmisionColor = emmisionColor;
         }
 
-        public abstract ColoredRay ReachingRays(World world, Vector3D point);
+        public abstract ColoredRay GetReachingRays(World world, Vector3D point);
     }
 }

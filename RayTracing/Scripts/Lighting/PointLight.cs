@@ -15,7 +15,7 @@
             this.HitRadius = hitRadius;
         }
 
-        public override ColoredRay ReachingRays(World world, Vector3D point)
+        public override ColoredRay GetReachingRays(World world, Vector3D point)
         {
             Vector3D dirFromPointToLight = Position - point;
 

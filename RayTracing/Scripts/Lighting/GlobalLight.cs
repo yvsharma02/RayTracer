@@ -12,9 +12,10 @@
             this.Direction = direction.Normalize();
         } 
 
-        public override ColoredRay ReachingRays(World world, Vector3D point)
+        public override ColoredRay GetReachingRays(World world, Vector3D point)
         {
-            Shape shape = world.ClosestShapeHit(new Ray(point, Direction * -1f), out Vector3D poc);
+            Vector3D poc;
+            Shape shape = world.ClosestShapeHit(new Ray(point, Direction * -1f), out poc);
 
             if (shape == null)
                 return new ColoredRay(Direction * float.NegativeInfinity, Direction, point, LightColor, LightColor);

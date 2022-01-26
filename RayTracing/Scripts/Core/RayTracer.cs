@@ -39,6 +39,9 @@ namespace RayTracing
 
                     EmmisionChain[][] raysReachingPixel = new EmmisionChain[emmitedRays.Length][];
 
+                    if (startingPixelIndex.x + i == 490 && startingPixelIndex.y + j == 590)
+                        System.Diagnostics.Debugger.Break();
+                    
                     for (int k = 0; k < raysReachingPixel.Length; k++)
                         raysReachingPixel[k] = StartTrace(emmitedRays[k], world, cam);
 
@@ -75,9 +78,12 @@ namespace RayTracing
             else
                 pointOfContact = truePOC + hitShape.Shader.CalculateNormal(hitShape, truePOC) * Vector3D.EPSILON;
 
-            bool calcLighting = true;
+            bool calcLighting = hitShape != null;
             bool calcBounces = (hitShape != null) && (bouncesRemaining > 0);
             bool calcSkybox = hitShape == null;
+            
+//            if (bouncesRemaining == 0)
+//                System.Console.WriteLine();
 
             LinkedList<EmmisionChain> hittingRays = new LinkedList<EmmisionChain>();
 
@@ -86,16 +92,18 @@ namespace RayTracing
                 for (int i = 0; i < world.LightSourcesCount; i++)
                 {
                     LightSource light = world.GetLightSource(i);
-                    ColoredRay reachingRay = light.ReachingRays(world, tracingRay.Origin);
+                    ColoredRay reachingRay = light.GetReachingRays(world, pointOfContact);
                     hittingRays.AddLast(new EmmisionChain(light, reachingRay, null));
                 }
             }
 
             if (calcSkybox)
             {
+                /*
                 RTColor reachingRayClr = renderCamera.NoHitColor;
                 ColoredRay reachingRay = new ColoredRay(pointOfContact, tracingRay.DirectionReversed, tracingRay.Origin, reachingRayClr, reachingRayClr);
                 hittingRays.AddLast(new EmmisionChain(renderCamera, reachingRay, null));
+                */
             }
 
             if (calcBounces)
@@ -112,9 +120,10 @@ namespace RayTracing
             if (hitShape != null)
             {
                 var hittingRaysArray = hittingRays.ToArray();
-
+               
                 RTColor finalColor = hitShape.Shader.CalculateBounceColor(hitShape, hittingRaysArray, truePOC, tracingRay.DirectionReversed);
                 RTColor destColor = hitShape.Shader.CalculateDestinationColor(finalColor, truePOC, tracingRay.Origin);
+
                 return new EmmisionChain[] { new EmmisionChain(hitShape, new ColoredRay(pointOfContact, tracingRay.DirectionReversed, tracingRay.Origin, finalColor, destColor), hittingRaysArray) };
             }
 

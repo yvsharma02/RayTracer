@@ -58,7 +58,7 @@ namespace RayTracing
             {
                 for (int j = 0; j < hittingRays[i].Length; j++)
                 {
-                    if (hittingRays[i][j].Emmiter != null && (hittingRays[i][j].Emmiter.TypeID & (int)TypeID.Light) != 0)
+                    if (hittingRays[i][j].LastEmmiter != null && (hittingRays[i][j].LastEmmiter.TypeID & (int)TypeID.Light) != 0)
                         continue;
 
                     float intensity = hittingRays[i][j].EmmitedRay.SourceColor.Intensity;

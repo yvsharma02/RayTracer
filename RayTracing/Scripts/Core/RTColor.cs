@@ -4,7 +4,7 @@ namespace RayTracing
 {
     public struct RTColor
     {
-        public const float COLOR_CHANNEL_SCALE = 300;
+        public const float COLOR_CHANNEL_SCALE = 500;
         public const float MAX_INTENSITY = 500;
 
         public static readonly RTColor Black = new RTColor(0, 0, 0, 0);
@@ -85,6 +85,7 @@ namespace RayTracing
             return color;
         }
 
+        /*
         public static RTColor operator *(RTColor clr, float multiplier) => new RTColor(clr.Intensity, clr.r * multiplier, clr.g * multiplier, clr.b * multiplier);
 
         public static RTColor operator *(float multiplier, RTColor clr) => clr * multiplier;
@@ -94,5 +95,6 @@ namespace RayTracing
         public static RTColor operator +(RTColor a, RTColor b) => new RTColor(a.intensity + b.intensity, a.r + b.r, a.g + b.g, a.b + b.b);
 
         public static RTColor operator -(RTColor a, RTColor b) => new RTColor(a.Intensity - b.Intensity, a.r - b.r, a.g - b.g, a.b - b.b);
+        */
     }
 }
