@@ -30,15 +30,74 @@
 
             Vector3D forward = new Vector3D(0, 0, 1);
 
-            Transfomration transform = Transfomration.CalculateRequiredRotationTransform(Vector3D.Zero, forward, geomNormal);
+            Transformation transform = Transformation.CalculateRequiredRotationTransform(Vector3D.Zero, forward, geomNormal);
 
             return transform.Transform(nmNormal).Normalize();
         }
-
+        
         public override RTColor CalculateBounceColor(Shape shape, EmmisionChain[] hittingRays, Vector3D pointOfContact, Vector3D outgoingRayDir)
         {
-            double totalIntensity = 0f;
-            double maxIntensity = 0f;
+            // different intensities result in different color. The reflection is not a texture.
+            float lightOnlyIntensity = 0f;
+            float totalIntensity = 0f;
+
+            RTColor reflectionColor = RTColor.Black;
+            RTColor lightOnlyColor = RTColor.Black;
+
+            for (int i = 0; i < hittingRays.Length; i++)
+            {
+                totalIntensity += hittingRays[i].EmmitedRay.DestinationColor.Intensity;
+
+                if (hittingRays[i].Emmiter != null && ((hittingRays[i].Emmiter.TypeID & (int)TypeID.Light) != 0))
+                    lightOnlyIntensity += hittingRays[i].EmmitedRay.DestinationColor.Intensity;
+            }
+
+            for (int i = 0; i < hittingRays.Length; i++)
+            {
+                if (hittingRays[i].ParentSourcesCount > 0 && MainTexture == null)
+                    System.Diagnostics.Debugger.Break();
+
+                float actualWeight = hittingRays[i].EmmitedRay.DestinationColor.Intensity / totalIntensity;
+                float lightOnlyWeight = hittingRays[i].EmmitedRay.DestinationColor.Intensity / lightOnlyIntensity;
+
+                Vector3D normal = CalculateNormal(shape, pointOfContact);
+                float dot = Vector3D.Dot(normal, hittingRays[i].EmmitedRay.Direction * -1f);
+
+                if (dot < 0)
+                    dot = 0;
+
+                reflectionColor += hittingRays[i].EmmitedRay.DestinationColor * actualWeight * dot;
+
+                if (hittingRays[i].Emmiter != null && ((hittingRays[i].Emmiter.TypeID & (int)TypeID.Light) != 0))
+                    lightOnlyColor += hittingRays[i].EmmitedRay.DestinationColor * lightOnlyWeight * dot;
+            }
+
+            float finalIntensity = totalIntensity + (lightOnlyIntensity - totalIntensity) * (1f - Reflectiveness);
+            RTColor finalColor = reflectionColor + (lightOnlyColor - reflectionColor) * (1f - Reflectiveness);
+
+            if (finalIntensity < Vector3D.EPSILON)
+                return RTColor.Black;
+
+            if (MainTexture != null)
+            {
+                float rgbMultiplier = 1f / 255f;
+
+                var rgb = MainTexture.GetColorFromUV(shape.CalculateUV(pointOfContact));
+                RTColor textureColor = new RTColor(0f, rgb.R * rgbMultiplier, rgb.G * rgbMultiplier, rgb.B * rgbMultiplier);
+
+                finalColor = (finalColor + (textureColor * TextureStrength)) / (1f + TextureStrength);
+            }
+
+            return new RTColor(totalIntensity * (1 - Absorbance), finalColor.R, finalColor.G, finalColor.B);
+        }
+        /*
+        public override RTColor CalculateBounceColor(Shape shape, EmmisionChain[] hittingRays, Vector3D pointOfContact, Vector3D outgoingRayDir)
+        {
+            float totalIntensity = 0f;
+            float maxIntensity = 0f;
+
+            RTColor overallClr = default;
+            RTColor directLightClr = default;
 
             for (int i = 0; i < hittingRays.Length; i++)
             {
@@ -48,48 +107,53 @@
                 totalIntensity += hittingRays[i].EmmitedRay.DestinationColor.Intensity;
             }
 
-            float r = 0f;
-            float g = 0f;
-            float b = 0f;
+            for (int i = 0; i < hittingRays.Length; i++)
+            {
+                if (hittingRays[i].Emmiter == null || ((hittingRays[i].Emmiter.TypeID & (int)TypeIDs.Light) != 0))
+                    directLightClr += hittingRays[i].EmmitedRay.DestinationColor * (hittingRays[i].EmmitedRay.DestinationColor.Intensity / totalIntensity);
+            }
+
+            if (maxIntensity <= Vector3D.EPSILON)
+                return RTColor.Black;
+
+            RTColor resultantClr = default;
 
             for (int i = 0; i < hittingRays.Length; i++)
             {
                 float dot = 1f;
                 float weight = 1f;
-                float reflectionMultiplier = 1;
+                float reflectionMultiplier = Reflectiveness;
 
-                if ((hittingRays[i].Emmiter.TypeID & (int) TypeIDs.Shape) != 0)
-                    reflectionMultiplier = Reflectiveness;
-
+//                if ((hittingRays[i].Emmiter != null) && ((hittingRays[i].Emmiter.TypeID & (int) TypeIDs.Shape) != 0))
+//                    reflectionMultiplier = Reflectiveness;
+                
                 if (!hittingRays[i].EmmitedRay.Direction.IsZero)
                     dot = Vector3D.Dot(hittingRays[i].EmmitedRay.Direction * -1f, CalculateNormal(shape, pointOfContact));
-                else if (hittingRays[i].EmmitedRay.PointOfContact.IsInfinity)
-                    dot = 1f;
 
                 if (dot < 0f)
                     dot = 0f;
 
-                weight = (float)(hittingRays[i].EmmitedRay.DestinationColor.Intensity / maxIntensity);
+                weight = (float)(hittingRays[i].EmmitedRay.DestinationColor.Intensity / totalIntensity);
 
-                RTColor clr = hittingRays[i].EmmitedRay.DestinationColor;
+                RTColor reflectionClr = hittingRays[i].EmmitedRay.DestinationColor;
+                RTColor _clr = reflectionClr + (directLightClr - reflectionClr) * (1 - reflectionMultiplier);
 
-                r += clr.R * dot * weight * reflectionMultiplier;
-                g += clr.G * dot * weight * reflectionMultiplier;
-                b += clr.B * dot * weight * reflectionMultiplier;
+                resultantClr += _clr * dot * weight;
             }
 
             if (MainTexture != null)
             {
-                System.Drawing.Color textureClr = MainTexture.GetColorFromUV(shape.CalculateUV(pointOfContact));
+                float textureClrMultiplier = 1f / 255f;
 
-                r = (textureClr.R * TextureStrength + r) / (1f + TextureStrength);
-                g = (textureClr.G * TextureStrength + g) / (1f + TextureStrength);
-                b = (textureClr.B * TextureStrength + b) / (1f + TextureStrength);
+                System.Drawing.Color textureClr = MainTexture.GetColorFromUV(shape.CalculateUV(pointOfContact));
+                RTColor textureRTClr = new RTColor(0, textureClr.R * textureClrMultiplier, textureClr.G * textureClrMultiplier, textureClr.B * textureClrMultiplier);
+
+                resultantClr = (textureRTClr * TextureStrength + resultantClr) / (1f + TextureStrength);
             }
 
-            return new RTColor(totalIntensity * (1 - Absorbance), r, g, b);
+            return new RTColor(totalIntensity * (1 - Absorbance), resultantClr.RelativeR, resultantClr.RelativeG, resultantClr.RelativeB);
         }
-
+        */
         public override Ray[] GetOutgoingRays(Shape shape, Ray tracingRay, Vector3D pointOfContact)
         {
             if (NormalMap != null)

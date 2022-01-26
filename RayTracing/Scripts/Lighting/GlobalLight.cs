@@ -2,10 +2,12 @@
 {
     public class GlobalLight : LightSource
     {
+        public override int TypeID => (int)RayTracing.TypeID.SunLight;
+
         public readonly Vector3D Direction;
 
         // axis includes length too
-        public GlobalLight(Transfomration transform, Vector3D direction, RTColor color) : base(transform, color)
+        public GlobalLight(Transformation transform, Vector3D direction, RTColor color) : base(transform, color)
         {
             this.Direction = direction.Normalize();
         } 

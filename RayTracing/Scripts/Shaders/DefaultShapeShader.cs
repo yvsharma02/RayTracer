@@ -3,7 +3,6 @@
     public class DefaultShapeShader : ShapeShader
     {
         public readonly Texture MainTexture;
-
         public readonly Texture NormalMap;
 
         public DefaultShapeShader(Texture texture = null, Texture normalMap = null)
@@ -30,7 +29,7 @@
 
                 Vector3D forward = new Vector3D(0, 0, 1);
 
-                Transfomration transform = Transfomration.CalculateRequiredRotationTransform(Vector3D.Zero, forward, geomNormal);
+                Transformation transform = Transformation.CalculateRequiredRotationTransform(Vector3D.Zero, forward, geomNormal);
 
                 return transform.Transform(nmNormal).Normalize();
             }
@@ -58,7 +57,7 @@
         }
         public override RTColor CalculateBounceColor(Shape shape, EmmisionChain[] hittingRays, Vector3D pointOfContact, Vector3D bouncedRayDirection)
         {
-            double totalIntensity = 0f;
+            float totalIntensity = 0f;
 
             for (int i = 0; i < hittingRays.Length; i++)
                     totalIntensity += hittingRays[i].EmmitedRay.DestinationColor.Intensity;
@@ -76,12 +75,11 @@
                     if (dot < 0f)
                         dot = 0f;
 
-
                     ColoredRay ray = hittingRays[i].EmmitedRay;
 
-                    r += (float)(ray.DestinationColor.R * dot * weight);
-                    g += (float)(ray.DestinationColor.G * dot * weight);
-                    b += (float)(ray.DestinationColor.B * dot * weight);
+                    r += ray.DestinationColor.AbsoluteR * dot * weight;
+                    g += ray.DestinationColor.AbsoluteG * dot * weight;
+                    b += ray.DestinationColor.AbsoluteB * dot * weight;
                 }
             }
             else

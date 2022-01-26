@@ -2,13 +2,13 @@
 {
     public abstract class LightSource : WorldObject
     {
-        public override int TypeID => (int) TypeIDs.Light;
+        public override int TypeID => (int)RayTracing.TypeID.Light;
 
         private RTColor emmisionColor;
 
         public RTColor LightColor => emmisionColor;
 
-        public LightSource(Transfomration transform, RTColor emmisionColor) : base(transform)
+        public LightSource(Transformation transform, RTColor emmisionColor) : base(transform)
         {
             this.emmisionColor = emmisionColor;
         }

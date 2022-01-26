@@ -3,12 +3,11 @@
     public class Mesh : Shape
     {
         private Bounds bounds;
-
         public Bounds MeshBounds { get => bounds; }
 
         private MeshTriangle[] meshTriangles;
 
-        public Mesh(Transfomration transform, ShapeShader shader, Vector3D[] vertices, int[] triangles, Vector3D[] normals = null, int[] normalTriangles = null, Vector2D[] uvs = null, int[] uvTriangles = null) : base(transform, shader)
+        public Mesh(Transformation transform, ShapeShader shader, Vector3D[] vertices, int[] triangles, Vector3D[] normals = null, int[] normalTriangles = null, Vector2D[] uvs = null, int[] uvTriangles = null) : base(transform, null)
         {
             if (triangles.Length % 3 != 0)
                 throw new ArgumentException("triangles array length should be a multiple of 3.");
@@ -33,7 +32,7 @@
                 Triangle? uvTriangle = validUVs ? new Triangle(uvs[uvTriangles[t]], uvs[uvTriangles[t + 1]], uvs[uvTriangles[t + 2]]) : null;
                 Triangle? normalTriangle = validNormals ? new Triangle(normals[normalTriangles[t]], normals[normalTriangles[t + 1]], normals[normalTriangles[t + 2]]) : null;
 
-                meshTriangles[i] = new MeshTriangle(new Transfomration(), vertexTriangle, identicalNormals ? null : normalTriangle, uvTriangle, shader, null, false);
+                meshTriangles[i] = new MeshTriangle(new Transformation(), vertexTriangle, identicalNormals ? null : normalTriangle, uvTriangle, shader, null, false);
 
                 t += 3;
             }

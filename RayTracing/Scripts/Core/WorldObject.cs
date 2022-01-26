@@ -2,14 +2,14 @@
 {
     public abstract class WorldObject
     {
-        protected Transfomration oldTransform = new Transfomration(Vector3D.Zero, Vector3D.Zero, new Vector3D(1f, 1f, 1f));  
-        protected Transfomration transform = new Transfomration(Vector3D.Zero, Vector3D.Zero, new Vector3D(1f, 1f, 1f));
+        protected Transformation oldTransform = new Transformation(Vector3D.Zero, Vector3D.Zero, new Vector3D(1f, 1f, 1f));  
+        protected Transformation transform = new Transformation(Vector3D.Zero, Vector3D.Zero, new Vector3D(1f, 1f, 1f));
 
         protected bool newTransformApplied = false;
         
         public abstract int TypeID { get; }
 
-        public Transfomration Transform
+        public Transformation Transform
         {
             get
             {
@@ -17,18 +17,18 @@
             }
         }
 
-        public void SetLocalTransform(Transfomration newTransform)
+        public void SetLocalTransform(Transformation newTransform)
         {
             SetTransform(newTransform, true);
         }
 
-        public WorldObject(Transfomration transform)
+        public WorldObject(Transformation transform)
         {
             // We want to skip calling OnTransformChange here as the child may not have been initialized info needed to process Transform Change yet.
             this.transform = transform;
         }
 
-        protected virtual void SetTransform(Transfomration newTransform, bool transformImmediately)
+        protected virtual void SetTransform(Transformation newTransform, bool transformImmediately)
         {
             this.oldTransform = transform;
             this.transform = newTransform;

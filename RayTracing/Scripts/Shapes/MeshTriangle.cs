@@ -13,7 +13,7 @@
 
         public Triangle VertexTriangle => vertexTriangle;
 
-        public MeshTriangle(Transfomration transform, Triangle vertices, Triangle? normals, Triangle? uvs, ShapeShader shader, Vector3D? defaultNormal = null, bool applyTransformImmediately = true) : base(transform, shader)
+        public MeshTriangle(Transformation transform, Triangle vertices, Triangle? normals, Triangle? uvs, ShapeShader shader, Vector3D? defaultNormal = null, bool applyTransformImmediately = true) : base(transform, shader)
         {
             this.vertexTriangle = vertices;
 
@@ -42,7 +42,7 @@
 
         protected override void ApplyTransform()
         {
-            Transfomration newTransform = transform;
+            Transformation newTransform = transform;
 
             Vector3D[] vertices = new Vector3D[3];
             for (int i = 0; i < 3; i++)

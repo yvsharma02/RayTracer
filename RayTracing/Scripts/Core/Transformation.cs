@@ -1,6 +1,6 @@
 ﻿namespace RayTracing
 {
-    public struct Transfomration
+    public struct Transformation
     {
         public readonly Vector3D Position;
         public readonly Vector3D Rotation;
@@ -8,40 +8,40 @@
 
         public readonly Vector3D RotationRadians => Rotation * (2 * MathF.PI / 360f);
 
-        public Transfomration()
+        public Transformation()
         {
             this.Position = Vector3D.Zero;
             this.Rotation = Vector3D.Zero;
             this.Scale = new Vector3D(1, 1, 1);
         }
 
-        public Transfomration(Vector3D pos, Vector3D rot, Vector3D scale)
+        public Transformation(Vector3D pos, Vector3D rot, Vector3D scale)
         {
             this.Position = pos;
             this.Rotation = rot;
             this.Scale = scale;
         }
 
-        public Transfomration(Vector3D pos) : this(pos, Vector3D.Zero, new Vector3D(1f, 1f, 1f)) { }
+        public Transformation(Vector3D pos) : this(pos, Vector3D.Zero, new Vector3D(1f, 1f, 1f)) { }
 
-        public Transfomration Move(Vector3D step)
+        public Transformation Move(Vector3D step)
         {
-            return new Transfomration(Position + step, Rotation, Scale);
+            return new Transformation(Position + step, Rotation, Scale);
         }
 
-        public Transfomration Rotate(Vector3D rotateBy)
+        public Transformation Rotate(Vector3D rotateBy)
         {
-            return new Transfomration(Position, Rotation + rotateBy, Scale);
+            return new Transformation(Position, Rotation + rotateBy, Scale);
         }
 
-        public Transfomration ModifyScale(Vector3D scaleMultiplier)
+        public Transformation ModifyScale(Vector3D scaleMultiplier)
         {
-            return new Transfomration(Position, Rotation, new Vector3D(Scale.x * Scale.x, scaleMultiplier.y * Scale.y, Scale.z * Scale.z));
+            return new Transformation(Position, Rotation, new Vector3D(Scale.x * Scale.x, scaleMultiplier.y * Scale.y, Scale.z * Scale.z));
         }
 
-        public Transfomration ModifyScale(float multiplier)
+        public Transformation ModifyScale(float multiplier)
         {
-            return new Transfomration(Position, Rotation, Scale * multiplier);
+            return new Transformation(Position, Rotation, Scale * multiplier);
         }
 
         public Vector3D Transform(Vector3D point, bool position = true, bool rotation = true, bool scale = true)
@@ -115,12 +115,12 @@
             return String.Format("Position: {0}, Rotation: {1}, Scale: {2}", Position, Rotation, Scale);
         }
 
-        public static Transfomration CalculateRequiredRotationTransform(Vector3D pivot, Vector3D source, Vector3D destination)
+        public static Transformation CalculateRequiredRotationTransform(Vector3D pivot, Vector3D source, Vector3D destination)
         {
             Vector3D srcAngles = FindAngles(source, pivot);
             Vector3D destinationAngles = FindAngles(destination, pivot);
 
-            return new Transfomration(Vector3D.Zero, destinationAngles - srcAngles, Vector3D.One);
+            return new Transformation(Vector3D.Zero, destinationAngles - srcAngles, Vector3D.One);
         }
 
         public static Vector3D FindAngles(Vector3D point, Vector3D pivot)
@@ -143,21 +143,21 @@
             return FindAngles(point, Vector3D.Zero);
         }
 
-        public static Transfomration Add(Transfomration a, Transfomration b)
+        public static Transformation Add(Transformation a, Transformation b)
         {
-            return new Transfomration(a.Position + b.Position, a.Rotation + b.Rotation, new Vector3D(a.Scale.x * b.Scale.x, a.Scale.y * b.Scale.y, a.Scale.z * b.Scale.z));
+            return new Transformation(a.Position + b.Position, a.Rotation + b.Rotation, new Vector3D(a.Scale.x * b.Scale.x, a.Scale.y * b.Scale.y, a.Scale.z * b.Scale.z));
         }
-        public static Transfomration operator +(Transfomration a, Transfomration b)
+        public static Transformation operator +(Transformation a, Transformation b)
         {
             return Add(a, b);
         }
 
-        public static Transfomration operator -(Transfomration a)
+        public static Transformation operator -(Transformation a)
         {
-            return new Transfomration(-a.Position, -a.Rotation, new Vector3D(1f / a.Scale.x, 1f / a.Scale.y, 1f / a.Scale.z));
+            return new Transformation(-a.Position, -a.Rotation, new Vector3D(1f / a.Scale.x, 1f / a.Scale.y, 1f / a.Scale.z));
         }
 
-        public static Transfomration operator -(Transfomration a, Transfomration b)
+        public static Transformation operator -(Transformation a, Transformation b)
         {
             return a + (-b);
         }

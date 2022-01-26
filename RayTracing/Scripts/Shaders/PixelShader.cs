@@ -4,7 +4,7 @@
     {
         public abstract Ray[] GetEmmitedRays(Camera camera, Int2D pixelIndex);
 
-        public abstract System.Drawing.Color CalculateFinalPixelColor(Camera camera, Int2D pixelIndex, EmmisionChain[] hittingRays);
+        public abstract System.Drawing.Color CalculateFinalPixelColor(Camera camera, Int2D pixelIndex, EmmisionChain[][] hittingRays);
 
     }
 }

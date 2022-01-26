@@ -9,10 +9,9 @@
         public virtual Ray[] GetOutgoingRays(Shape shape, Ray tracingRay, Vector3D pointOfContact)
         {
             Vector3D normal = shape.CalculateNormal(pointOfContact);
+            Vector3D reflectedDir = RTMath.CalculateReflectedRayDirection(tracingRay.Direction, normal);
 
-            Vector3D reflectedDir = RTMath.CalculateReflectedRayDirection(tracingRay.DirectionReversed * -1f, normal);
-
-            return new Ray[] { new Ray(pointOfContact + (normal * Vector3D.EPSILON), reflectedDir) };
+            return new Ray[] { new Ray(pointOfContact, reflectedDir) };
         }
 
         public virtual RTColor CalculateDestinationColor(RTColor color, Vector3D src, Vector3D destination)

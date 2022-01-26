@@ -35,17 +35,19 @@ namespace RayTracing
             return rays;
         }
 
-        public override Color CalculateFinalPixelColor(Camera camera, Int2D pixelIndex, EmmisionChain[] hittingRays)
+        public override Color CalculateFinalPixelColor(Camera camera, Int2D pixelIndex, EmmisionChain[][] hittingRays)
         {
-            double totalIntensity = 0;
-            double maxIntensity = 0;
+            float totalIntensity = 0;
+            float maxIntensity = 0;
 
             for (int i = 0; i < hittingRays.Length; i++)
             {
-                totalIntensity += hittingRays[i].EmmitedRay.SourceColor.Intensity;
-                if (hittingRays[i].EmmitedRay.SourceColor.Intensity > maxIntensity)
-                    maxIntensity = hittingRays[i].EmmitedRay.SourceColor.Intensity;
-
+                for (int j = 0; j < hittingRays[i].Length; j++)
+                {
+                    totalIntensity += hittingRays[i][j].EmmitedRay.SourceColor.Intensity;
+                    if (hittingRays[i][j].EmmitedRay.SourceColor.Intensity > maxIntensity)
+                        maxIntensity = hittingRays[i][j].EmmitedRay.SourceColor.Intensity;
+                }
             }
 
             float r = 0;
@@ -54,13 +56,20 @@ namespace RayTracing
 
             for (int i = 0; i < hittingRays.Length; i++)
             {
-                //                float multiplier = (float)((hittinRays[i].EmmitedRay.SourceColor.Intensity / RTColor.MAX_INTENSITY) / hittinRays.Length);
+                for (int j = 0; j < hittingRays[i].Length; j++)
+                {
+                    if (hittingRays[i][j].Emmiter != null && (hittingRays[i][j].Emmiter.TypeID & (int)TypeID.Light) != 0)
+                        continue;
 
-                float multiplier = (float)(hittingRays[i].EmmitedRay.SourceColor.Intensity / totalIntensity);
+                    float intensity = hittingRays[i][j].EmmitedRay.SourceColor.Intensity;
+                    float multiplier = (intensity * intensity) / (totalIntensity * RTColor.MAX_INTENSITY);
 
-                r += hittingRays[i].EmmitedRay.SourceColor.R * multiplier;
-                g += hittingRays[i].EmmitedRay.SourceColor.G * multiplier;
-                b += hittingRays[i].EmmitedRay.SourceColor.B * multiplier;
+                    //                float multiplier = (float)(hittingRays[i].EmmitedRay.SourceColor.Intensity / totalIntensity);
+
+                    r += hittingRays[i][j].EmmitedRay.SourceColor.AbsoluteR * multiplier;
+                    g += hittingRays[i][j].EmmitedRay.SourceColor.AbsoluteG * multiplier;
+                    b += hittingRays[i][j].EmmitedRay.SourceColor.AbsoluteB * multiplier;
+                }
             }
              
             if (r > 255)

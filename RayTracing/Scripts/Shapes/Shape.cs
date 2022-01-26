@@ -2,11 +2,11 @@
 {
     public abstract class Shape : WorldObject
     {
-        public override int TypeID => (int) TypeIDs.Shape;
+        public override int TypeID => (int)RayTracing.TypeID.Shape;
 
         public ShapeShader Shader { get; protected set; }
 
-        public Shape(Transfomration transform, ShapeShader shader) : base(transform)
+        public Shape(Transformation transform, ShapeShader shader) : base(transform)
         {
             this.Shader = shader;
         }
