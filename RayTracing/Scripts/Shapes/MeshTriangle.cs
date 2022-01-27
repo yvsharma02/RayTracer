@@ -92,7 +92,10 @@
             Vector3D contribution = vertexTriangle.CalculateBarycentricPoint(pointOfContact);
             Vector2D uv = UVTriangle.Value[0] * contribution[0] + UVTriangle.Value[1] * contribution[1] + UVTriangle.Value[2] * contribution[2];
 
-            return uv;
+            float finalUVx = uv.x > 1 ? 1 : uv.x < 0 ? 0 : uv.x;
+            float finalUVy = uv.y > 1 ? 1 : uv.y < 0 ? 0 : uv.y;
+
+            return new Vector2D(finalUVx, finalUVy);
         }
 
         public Vector3D GetVertex(int index)

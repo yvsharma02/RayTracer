@@ -64,6 +64,9 @@ namespace RayTracing
                     float intensity = hittingRays[i][j].EmmitedRay.SourceColor.Intensity;
                     float multiplier = (intensity * intensity) / (totalIntensity * RTColor.MAX_INTENSITY);
 
+                    if (!float.IsNormal(multiplier))
+                        multiplier = 1f;
+
                     //                float multiplier = (float)(hittingRays[i].EmmitedRay.SourceColor.Intensity / totalIntensity);
 
                     r += hittingRays[i][j].EmmitedRay.SourceColor.AbsoluteR * multiplier;

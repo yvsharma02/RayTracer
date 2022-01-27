@@ -27,17 +27,17 @@
         private const int RAYS_PER_PIXEL_X = 2;
         private const int RAYS_PER_PIXEL_Y = 2;
          
-        private const int BOUCES = 1;
+        private const int BOUCES = 6;
 
         private World world;
 
         public TestScene()
         {
             Transformation sphereTransform = new Transformation(new Vector3D(0, -10, 10), new Vector3D(0, 0, 0), new Vector3D(5, 5, 5));
-            Transformation planeTransform = new Transformation(new Vector3D(0, -25, 0), new Vector3D(0, 0, 0), new Vector3D(100, 100, 100));
+            Transformation planeTransform = new Transformation(new Vector3D(0, -25, 0), new Vector3D(0, 0, 0), new Vector3D(25, 25, 25));
             Transformation cameraTransform = new Transformation(new Vector3D(0, 0, 25), new Vector3D(-15, 0, 0), new Vector3D(200, 200, 25));
 
-            RTColor sunColor = new RTColor(RTColor.MAX_INTENSITY / 1.5f, 1, 1, 1);
+            RTColor sunColor = new RTColor(RTColor.MAX_INTENSITY / 1.5f, 1f, 1f, 1f);
             Vector3D sunDir = new Vector3D(0, -1f, 0f);
 
             world = new World(null, null);
@@ -46,18 +46,23 @@
 
             world.SetMainCamera(cam);
 
-            ShapeShader sphereShader = new AdvanceShapeShader(null, null, 0f, 1f, .1f);
+            ShapeShader sphereShader = new AdvanceShapeShader(TextureLoader.Load(TEST_BALL_TEXTURE), null, 0f, 1f, 0f);
             ShapeShader planeShader = new AdvanceShapeShader(TextureLoader.Load(TEST_TEXTURE_LOCATION), TextureLoader.Load(TEST_NORMAL_MAP_LOCATION), 0f, 1f, 1f);
+
+//            ShapeShader planeShader = new TestShader(null, null, 0f, 1f, 1f);
+//            ShapeShader sphereShader = new TestShader(null, null, 0f, 1f, 1f);
 
             MeshBuilder builder = MeshReader.ReadObj(TEST_MESH_LOCATION);
             world.AddShape(builder.Build(sphereTransform, sphereShader, true));
-//            world.AddShape(builder.Build(sphereTransform + new Transfomration(new Vector3D(10, 10, 0), default, Vector3D.One), sphereShader, true));
+            world.AddShape(builder.Build(sphereTransform + new Transformation(new Vector3D(9, 1, 0)), new AdvanceShapeShader(null, null, 0, 1, 1), true));
+            //            world.AddShape(builder.Build(sphereTransform + new Transfomration(new Vector3D(10, 10, 0), default, Vector3D.One), sphereShader, true));
             MeshBuilder builder2 = MeshReader.ReadObj(TEST_MESH_2_LOCATION);
             world.AddShape(builder2.Build(planeTransform, planeShader, false));
 
             world.AddLightSource(new GlobalLight(new Transformation(new Vector3D(0, 50, 0)), sunDir, sunColor));
+//            world.AddLightSource(new PointLight(new RTColor(RTColor.MAX_INTENSITY, 1, .25f, .5f), new Transformation(planeTransform.Position + new Vector3D(0, 2, 0)), 1));
 
-//            world.AddShape(builder.Build(new Transformation(new Vector3D(-9.467004f, -24.999006f, 12.018528f), Vector3D.Zero, Vector3D.One), new AdvanceShapeShader(null, null, 0, 0, 1), true));
+            //            world.AddShape(builder.Build(new Transformation(new Vector3D(-9.467004f, -24.999006f, 12.018528f), Vector3D.Zero, Vector3D.One), new AdvanceShapeShader(null, null, 0, 0, 1), true));
 
             String location = Path.Combine(SAVE_LOCATION, DateTime.Now.ToString().Replace(":", "-") + ".png");
             Renderer.RenderAndWriteToDisk(world, world.GetMainCamera(), new Int2D(CHUNKS_X, CHUNKS_Y), MULTI_THREADING_ENABLED, location);
