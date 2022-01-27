@@ -34,7 +34,7 @@
         public TestScene()
         {
             Transformation sphereTransform = new Transformation(new Vector3D(0, -10, 10), new Vector3D(0, 0, 0), new Vector3D(5, 5, 5));
-            Transformation planeTransform = new Transformation(new Vector3D(0, -25, 0), new Vector3D(0, 0, 0), new Vector3D(25, 25, 25));
+            Transformation planeTransform = new Transformation(new Vector3D(0, -25, 0), new Vector3D(0, 0, 0), new Vector3D(100, 100, 100));
             Transformation cameraTransform = new Transformation(new Vector3D(0, 0, 25), new Vector3D(-15, 0, 0), new Vector3D(200, 200, 25));
 
             RTColor sunColor = new RTColor(RTColor.MAX_INTENSITY / 1.5f, 1, 1, 1);
@@ -46,7 +46,7 @@
 
             world.SetMainCamera(cam);
 
-            ShapeShader sphereShader = new AdvanceShapeShader(null, null, 0f, 1f, 0f);
+            ShapeShader sphereShader = new AdvanceShapeShader(null, null, 0f, 1f, .1f);
             ShapeShader planeShader = new AdvanceShapeShader(TextureLoader.Load(TEST_TEXTURE_LOCATION), TextureLoader.Load(TEST_NORMAL_MAP_LOCATION), 0f, 1f, 1f);
 
             MeshBuilder builder = MeshReader.ReadObj(TEST_MESH_LOCATION);

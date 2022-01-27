@@ -53,8 +53,14 @@
 
             for (int i = 0; i < hittingRays.Length; i++)
             {
-                float actualWeight = hittingRays[i].EmmitedRay.DestinationColor.Intensity / totalIntensity;
                 float lightOnlyWeight = hittingRays[i].EmmitedRay.DestinationColor.Intensity / lightOnlyIntensity;
+                float weight = hittingRays[i].EmmitedRay.DestinationColor.Intensity / totalIntensity;
+
+                if (!float.IsNormal(weight))
+                    weight = 1f;
+
+                if (!float.IsNormal(lightOnlyWeight))
+                    lightOnlyWeight = 1f;
 
                 Vector3D normal = CalculateNormal(shape, pointOfContact);
                 float dot = Vector3D.Dot(normal, hittingRays[i].EmmitedRay.Direction * -1f);
@@ -62,20 +68,20 @@
                 if (dot < 0)
                     dot = 0;
 
-                totalColor += ((RawRTColor) hittingRays[i].EmmitedRay.DestinationColor) * actualWeight * dot;
+                totalColor += ((RawRTColor) hittingRays[i].EmmitedRay.DestinationColor) * weight * dot;
 
                if (hittingRays[i].LastEmmiter != null && ((hittingRays[i].LastEmmiter.TypeID & (int)TypeID.Light) != 0))
                     lightOnlyColor += ((RawRTColor) hittingRays[i].EmmitedRay.DestinationColor) * dot * lightOnlyWeight;
             }
 
-//            float finalIntensity = lightOnlyIntensity + (totalIntensity - lightOnlyIntensity) * Reflectiveness;
+            float finalIntensity = lightOnlyIntensity + (totalIntensity - lightOnlyIntensity) * Reflectiveness;
             RawRTColor finalColor = lightOnlyColor + (totalColor - lightOnlyColor) * Reflectiveness;
 
             if (finalColor.Intensity < Vector3D.EPSILON || !float.IsNormal(finalColor.Intensity))
                 return RTColor.Black;
 
-            //            if (finalIntensity < Vector3D.EPSILON || !float.IsNormal(finalIntensity))
-            //                return RTColor.Black;
+            if (finalIntensity < Vector3D.EPSILON || !float.IsNormal(finalIntensity))
+                return RTColor.Black;
 
             if (MainTexture != null)
             {
@@ -87,7 +93,7 @@
                 finalColor = (finalColor + (((RawRTColor)textureColor) * TextureStrength)) / (1f + TextureStrength);
             }
 
-            return (RTColor) new RTColor(lightOnlyIntensity, finalColor.R, finalColor.G, finalColor.B);
+            return (RTColor) new RTColor(finalIntensity, finalColor.R, finalColor.G, finalColor.B);
 //            return new RTColor(finalIntensity * (1 - Absorbance), finalColor.R, finalColor.G, finalColor.B);
         }
         /*

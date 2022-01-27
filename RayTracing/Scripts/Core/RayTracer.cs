@@ -39,7 +39,7 @@ namespace RayTracing
 
                     EmmisionChain[][] raysReachingPixel = new EmmisionChain[emmitedRays.Length][];
 
-                    if (startingPixelIndex.x + i == 490 && startingPixelIndex.y + j == 590)
+                    if (startingPixelIndex.x + i == 494 && startingPixelIndex.y + j == 587)
                         System.Diagnostics.Debugger.Break();
                     
                     for (int k = 0; k < raysReachingPixel.Length; k++)
