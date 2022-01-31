@@ -5,6 +5,7 @@
         public static Vector3D Forward => new Vector3D(0, 0, 1);
 
         public static Vector3D Zero => new Vector3D();
+
         public static Vector3D One => new Vector3D(1, 1, 1);
 
         public const float EPSILON = 0.001f;
@@ -157,6 +158,20 @@
         public static Vector3D operator -(Vector3D a, Vector3D b)
         {
             return a + (-b);
+        }
+
+        public static float Angle(Vector3D a, Vector3D b, bool invertViewingDirection)
+        {
+            Vector3D cross = Vector3D.Cross(a, b);
+
+            float angle = MathF.Asin(cross.Magnitude() / (a.Magnitude() * b.Magnitude())); ;
+            
+            return invertViewingDirection ? -angle : angle;
+        }
+
+        public static float Angle(Vector3D a, Vector3D b)
+        {
+            return Angle(a, b, false);
         }
     }
 }

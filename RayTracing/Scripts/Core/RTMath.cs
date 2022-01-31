@@ -2,6 +2,19 @@
 {
     public static class RTMath
     {
+        public const float RAD_TO_DEG = 180f / MathF.PI;
+        public const float DEG_TO_RAD = MathF.PI / 180f;
+
+        public static Vector3D RotateAboutAxis(Vector3D point, Vector3D pivot, Vector3D axis, float angle)
+        {
+            Vector3D dirVector = point - pivot;
+            Quaternion rotationQuaternion = new Quaternion(angle, axis.Normalize());
+
+            Vector3D rotatedDirVector = rotationQuaternion.Rotate(dirVector);
+
+            return pivot + rotatedDirVector;
+        }
+
         public static bool LiesInsideTriangle(Vector3D point, bool checkIfPointLiesInPlane, Triangle triangle)
         {
             Vector3D p = point;

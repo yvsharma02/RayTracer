@@ -8,10 +8,12 @@
         public readonly bool HasCustomUVs = false;
 
         private Triangle vertexTriangle;
-        private Triangle? NormalTriangle;
-        private Triangle? UVTriangle;
+        private Triangle? normalTriangle;
+        private Triangle? uvTriangle;
 
         public Triangle VertexTriangle => vertexTriangle;
+        public Triangle UVTriangle => uvTriangle.Value;
+        public Triangle NormalTriangle => normalTriangle.Value;
 
         public MeshTriangle(Transformation transform, Triangle vertices, Triangle? normals, Triangle? uvs, ShapeShader shader, Vector3D? defaultNormal = null, bool applyTransformImmediately = true) : base(transform, shader)
         {
@@ -28,13 +30,13 @@
             if (normals.HasValue)
             {
                 HasCustomNormals = true;
-                NormalTriangle = normals.Value;
+                normalTriangle = normals.Value;
             }
 
             if (uvs.HasValue)
             {
                 HasCustomUVs = true;
-                UVTriangle = uvs.Value;
+                uvTriangle = uvs.Value;
             }
 
             SetTransform(transform, applyTransformImmediately);
@@ -50,14 +52,14 @@
 
             vertexTriangle = new Triangle(vertices[0], vertices[1], vertices[2]);
         
-            if (NormalTriangle.HasValue)
+            if (normalTriangle.HasValue)
             {
                 Vector3D[] normals = new Vector3D[3];
 
                 for (int i = 0; i < 3; i++)
-                    normals[i] = newTransform.Transform(oldTransform.InverseTransform(NormalTriangle.Value[i], false, true, false), false, true, false).Normalize();
+                    normals[i] = newTransform.Transform(oldTransform.InverseTransform(normalTriangle.Value[i], false, true, false), false, true, false).Normalize();
 
-                NormalTriangle = new Triangle(normals[0], normals[1], normals[2]);
+                normalTriangle = new Triangle(normals[0], normals[1], normals[2]);
             }
             DefaultNormal = newTransform.Transform(oldTransform.InverseTransform(DefaultNormal, false, true, false), false, true, false).Normalize();
 
@@ -75,10 +77,10 @@
             if (!HasCustomNormals)
                 return DefaultNormal;
 
-            if (NormalTriangle.HasValue)
+            if (normalTriangle.HasValue)
             {
                 Vector3D contribution = vertexTriangle.CalculateBarycentricPoint(pointOfContact);
-                return (NormalTriangle.Value[0] * contribution[0] + NormalTriangle.Value[1] * contribution[1] + NormalTriangle.Value[2] * contribution[2]).Normalize();
+                return (normalTriangle.Value[0] * contribution[0] + normalTriangle.Value[1] * contribution[1] + normalTriangle.Value[2] * contribution[2]).Normalize();
             }
             else
                 return DefaultNormal;
@@ -90,7 +92,7 @@
                 throw new InvalidOperationException("Triangle does not have valid UVs.");
 
             Vector3D contribution = vertexTriangle.CalculateBarycentricPoint(pointOfContact);
-            Vector2D uv = UVTriangle.Value[0] * contribution[0] + UVTriangle.Value[1] * contribution[1] + UVTriangle.Value[2] * contribution[2];
+            Vector2D uv = uvTriangle.Value[0] * contribution[0] + uvTriangle.Value[1] * contribution[1] + uvTriangle.Value[2] * contribution[2];
 
             float finalUVx = uv.x > 1 ? 1 : uv.x < 0 ? 0 : uv.x;
             float finalUVy = uv.y > 1 ? 1 : uv.y < 0 ? 0 : uv.y;

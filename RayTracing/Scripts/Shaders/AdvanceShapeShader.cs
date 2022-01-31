@@ -23,16 +23,41 @@
             if (NormalMap == null)
                 return shape.CalculateNormal(poc);
 
-            System.Drawing.Color normalColor = NormalMap.GetColorFromUV(shape.CalculateUV(poc));
+//            if (!(shape is MeshTriangle))
+//            {
+                System.Drawing.Color normalColor = NormalMap.GetColorFromUV(shape.CalculateUV(poc));
 
-            Vector3D nmNormal = new Vector3D((normalColor.R - 127.5f) / 127.5f, (normalColor.G - 127.5f) / 127.5f, normalColor.B / 127.5f);
-            Vector3D geomNormal = shape.CalculateNormal(poc).Normalize();
+                Vector3D nmNormal = new Vector3D((normalColor.R / 127.5f) - 1f, (normalColor.G / 127.5f) - 1f, (normalColor.B / 255f));
+                Vector3D geomNormal = shape.CalculateNormal(poc).Normalize();
 
-            Vector3D forward = new Vector3D(0, 0, 1);
+                Vector3D forward = new Vector3D(0, 0, 1);
 
-            Transformation transform = Transformation.CalculateRequiredRotationTransform(Vector3D.Zero, forward, geomNormal);
+                Transformation transform = Transformation.CalculateRequiredRotationTransform(Vector3D.Zero, forward, geomNormal);
 
-            return transform.Transform(nmNormal).Normalize();
+                return transform.Transform(nmNormal, false, true, false).Normalize();
+//            }
+            /*
+            else
+            {
+                MeshTriangle triangle = (MeshTriangle)shape;
+
+                float du1 = triangle.UVTriangle[1].x - triangle.UVTriangle[0].x;
+                float du2 = triangle.UVTriangle[2].x - triangle.UVTriangle[0].x;
+
+                float dv1 = triangle.UVTriangle[1].y - triangle.UVTriangle[0].y;
+                float dv2 = triangle.UVTriangle[2].y - triangle.UVTriangle[0].y;
+
+                float coeff = 1f / (du1 * dv2 - du2 * dv1);
+
+                Vector3D V1 = triangle.VertexTriangle[1] - triangle.VertexTriangle[0];
+                Vector3D V2 = triangle.VertexTriangle[2] - triangle.VertexTriangle[1];
+
+                Vector3D t = (V1 * dv2 - V2 * dv1) * coeff;
+                Vector3D b = (V2 * du1 - V1 * du2) * coeff;
+
+                return Vector3D.Cross()
+            }
+            */
         }
         
         public override RTColor CalculateBounceColor(Shape shape, EmmisionChain[] hittingRays, Vector3D pointOfContact, Vector3D outgoingRayDir)
