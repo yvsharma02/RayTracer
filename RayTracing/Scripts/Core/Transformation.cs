@@ -31,7 +31,7 @@
 
         public Transformation Rotate(Vector3D rotateBy)
         {
-            return new Transformation(Position, Quaternion.ToEulerAngles(Rotation) + rotateBy, Scale);
+            return new Transformation(Position, Rotation.ToEulerAngles() + rotateBy, Scale);
         }
 
         public Transformation ModifyScale(Vector3D scaleMultiplier)
@@ -93,6 +93,7 @@
             return String.Format("Position: {0}, Rotation: {1}, Scale: {2}", Position, Rotation, Scale);
         }
 
+        /*
         public static Transformation CalculateRequiredRotationTransform(Vector3D pivot, Vector3D source, Vector3D destination)
         {
             Vector3D srcDirVec = source - pivot;
@@ -103,10 +104,11 @@
 
             return new Transformation(Vector3D.Zero, Quaternion.CreateRotationQuaternion(cross, angle), Vector3D.One);
         }
+        */
 
         public static Transformation Add(Transformation a, Transformation b)
         {
-            Vector3D finalRotation = Quaternion.ToEulerAngles(a.Rotation) + Quaternion.ToEulerAngles(b.Rotation);
+            Vector3D finalRotation = a.Rotation.ToEulerAngles() + b.Rotation.ToEulerAngles();
             return new Transformation(a.Position + b.Position, finalRotation, new Vector3D(a.Scale.x * b.Scale.x, a.Scale.y * b.Scale.y, a.Scale.z * b.Scale.z));
         }
         public static Transformation operator +(Transformation a, Transformation b)
@@ -116,7 +118,7 @@
 
         public static Transformation operator -(Transformation a)
         {
-            return new Transformation(-a.Position, -Quaternion.ToEulerAngles(a.Rotation), new Vector3D(1f / a.Scale.x, 1f / a.Scale.y, 1f / a.Scale.z));
+            return new Transformation(-a.Position, -a.Rotation.ToEulerAngles(), new Vector3D(1f / a.Scale.x, 1f / a.Scale.y, 1f / a.Scale.z));
         }
 
         public static Transformation operator -(Transformation a, Transformation b)

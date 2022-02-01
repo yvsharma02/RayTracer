@@ -6,9 +6,8 @@
 
         public static void Main(String[] args)
         {
-            Console.WriteLine(Quaternion.FromEulerAngles(new Vector3D(0f, 90f, 0f) * RTMath.DEG_TO_RAD));
-
-            /*
+//            Console.WriteLine(Quaternion.FromEulerAngles(new Vector3D(0f, 90f, 0f) * RTMath.DEG_TO_RAD));
+/*
             Random r = new Random(); 
             while (true)
             {
@@ -24,7 +23,7 @@
 
                 Console.ReadKey();
             }
-            */
+*/
             //            Console.WriteLine(Quaternion.ToEulerAngles(Quaternion.FromEulerAngles(new Vector3D(1f, 0.0001f, 0.0001f))) * RTMath.RAD_TO_DEG);
 
 //            Quaternion q = Quaternion.FromEulerAngles(new Vector3D(MathF.PI / 2, 0, 0));
@@ -53,9 +52,9 @@
                 System.Console.ReadLine();
             }
             */
-//            Log.Initialise(LOG_FILE_PATH, true, true, true, true);
+            Log.Initialise(LOG_FILE_PATH, true, true, true, true);
 
-//            TestScene scene = new TestScene();
+            TestScene scene = new TestScene();
         }
     }
 }

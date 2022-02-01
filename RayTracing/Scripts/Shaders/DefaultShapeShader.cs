@@ -13,6 +13,7 @@
 
         public override Vector3D CalculateNormal(Shape shape, Vector3D poc)
         {
+            return default;
             if (NormalMap != null)
             {
                 Int2D TextureDimensions = new Int2D(NormalMap.Width - 1, NormalMap.Height - 1);
@@ -29,11 +30,11 @@
 
                 Vector3D forward = new Vector3D(0, 0, 1);
 
-                Transformation transform = Transformation.CalculateRequiredRotationTransform(Vector3D.Zero, forward, geomNormal);
+//                Transformation transform = Transformation.CalculateRequiredRotationTransform(Vector3D.Zero, forward, geomNormal);
 
-                return transform.Transform(nmNormal).Normalize();
+//                return transform.Transform(nmNormal).Normalize();
             }
-            else
+//            else
                 return shape.CalculateNormal(poc);
         }
 

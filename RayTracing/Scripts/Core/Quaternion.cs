@@ -22,23 +22,19 @@
 
         public Quaternion(float r, float i, float j, float k)
         {
-            this.real = r;
-            this.i = i;
-            this.j = j;
-            this.k = k;
+            float mag = 1;// MathF.Sqrt(r * r + i * i + j * j + k * k);
+
+            this.real = r / mag;
+            this.i = i / mag;
+            this.j = j / mag;
+            this.k = k / mag;
         }
 
-        public Quaternion(float real, Vector3D img)
-        {
-            this.real = real;
-            this.i = img.x;
-            this.j = img.y;
-            this.k = img.z;
-        }
+        public Quaternion(float real, Vector3D img) : this(real, img.x, img.y, img.z) { }
 
         public override string ToString()
         {
-            return String.Format("{0} + {1}i + {2}j + {3}k :: Euler angles: {4}", real, i, j, k, Quaternion.ToEulerAngles(this) * RTMath.RAD_TO_DEG);
+            return String.Format("{0} + {1}i + {2}j + {3}k :: Euler angles: {4}", real, i, j, k, ToEulerAngles() * RTMath.RAD_TO_DEG);
         }
 
         public Vector3D Rotate(Vector3D point)
@@ -48,8 +44,10 @@
             return result.ImaginaryAxis;
         }
 
-        public static Vector3D ToEulerAngles(Quaternion q)
+        public Vector3D ToEulerAngles()
         {
+            Quaternion q = this;
+
             float eax = 0f;
             float eay = 0f;
             float eaz = 0f;
