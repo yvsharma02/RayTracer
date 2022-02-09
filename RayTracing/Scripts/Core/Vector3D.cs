@@ -144,6 +144,10 @@
         {
             return new Vector3D(a.x * b, a.y * b, a.z * b);
         }
+        public static Vector3D operator *(float a, Vector3D b)
+        {
+            return b * a;
+        }
 
         public static Vector3D operator /(Vector3D a, float b)
         {

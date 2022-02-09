@@ -22,8 +22,11 @@
         {
             if (NormalMap == null)
                 return shape.CalculateNormal(poc);
+            
+            MeshTriangle triangle = (MeshTriangle)shape;
 
-            System.Drawing.Color normalColor = NormalMap.GetColorFromUV(shape.CalculateUV(poc));
+            Vector2D uv = shape.CalculateUV(poc);
+            System.Drawing.Color normalColor = NormalMap.GetColorFromUV(uv);
 
             Vector3D nmNormal = new Vector3D((normalColor.R / 127.5f) - 1f, (normalColor.G / 127.5f) - 1f, (normalColor.B / 255f));
             Vector3D geomNormal = shape.CalculateNormal(poc).Normalize();
@@ -35,7 +38,9 @@
 
             Quaternion rotationQ = new Quaternion(r, cross);
 
-            return rotationQ.Rotate(nmNormal);
+            Vector3D rotatedNormal = rotationQ.Rotate(nmNormal);
+
+            return rotatedNormal;
         }
         
         public override RTColor CalculateBounceColor(Shape shape, EmmisionChain[] hittingRays, Vector3D pointOfContact, Vector3D outgoingRayDir)
@@ -74,13 +79,13 @@
                 totalColor += ((RawRTColor) hittingRays[i].EmmitedRay.DestinationColor) * weight * dot;
 
                if (hittingRays[i].LastEmmiter != null && ((hittingRays[i].LastEmmiter.TypeID & (int)TypeID.Light) != 0))
-                    lightOnlyColor += ((RawRTColor) hittingRays[i].EmmitedRay.DestinationColor) * dot * lightOnlyWeight;
+                    lightOnlyColor += ((RawRTColor) hittingRays[i].EmmitedRay.DestinationColor) * dot * weight;
             }
 
             float finalIntensity = lightOnlyIntensity + (totalIntensity - lightOnlyIntensity) * Reflectiveness;
             RawRTColor finalColor = lightOnlyColor + (totalColor - lightOnlyColor) * Reflectiveness;
 
-            if (finalIntensity < Vector3D.EPSILON || !float.IsNormal(finalIntensity))
+            if (finalIntensity <= 0f)
                 return RTColor.Black;
 
             if (MainTexture != null)
@@ -98,6 +103,8 @@
 
         public override Ray[] GetOutgoingRays(Shape shape, Ray tracingRay, Vector3D pointOfContact)
         {
+            return new Ray[] { new Ray(pointOfContact, RTMath.CalculateReflectedRayDirection(tracingRay.Direction, shape.CalculateNormal(pointOfContact))) };
+
             if (NormalMap != null)
                 return new Ray[] { new Ray(pointOfContact, RTMath.CalculateReflectedRayDirection(tracingRay.Direction, CalculateNormal(shape, pointOfContact))) };
             else

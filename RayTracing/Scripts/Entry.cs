@@ -55,6 +55,7 @@
             Log.Initialise(LOG_FILE_PATH, true, true, true, true);
 
             TestScene scene = new TestScene();
+            scene.RenderAndSave();
         }
     }
 }

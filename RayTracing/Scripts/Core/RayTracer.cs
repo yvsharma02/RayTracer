@@ -73,7 +73,7 @@ namespace RayTracing
             if (hitShape == null)
                 pointOfContact = tracingRay.Origin + tracingRay.DirectionReversed * float.PositiveInfinity;
             else
-                pointOfContact = truePOC + hitShape.Shader.CalculateNormal(hitShape, truePOC) * Vector3D.EPSILON;
+                pointOfContact = truePOC + tracingRay.DirectionReversed * Vector3D.EPSILON;
 
             bool calcLighting = hitShape != null;
             bool calcBounces = (hitShape != null) && (bouncesRemaining > 0);
