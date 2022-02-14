@@ -4,24 +4,20 @@ namespace RayTracing
 {
     public class TextureLoader
     {
-
-        private static List<Texture> LoadedTextures;
+        private static Dictionary<string, Texture> LoadedTextures;
 
         static TextureLoader()
         {
-            LoadedTextures = new List<Texture>();
+            LoadedTextures = new Dictionary<string, Texture>();
         }
 
         public static Texture Load(String location)
         {
-            foreach (Texture texture in LoadedTextures)
-            {
-                if (texture.Location == location)
-                    return texture;
-            }
+            if(LoadedTextures.ContainsKey(location))
+                return LoadedTextures[location];
 
             Texture txt = new Texture(location);
-            LoadedTextures.Add(txt);
+            LoadedTextures.Add(location, txt);
             return txt;
         }
     }
