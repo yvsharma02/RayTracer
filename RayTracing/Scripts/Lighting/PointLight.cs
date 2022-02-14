@@ -26,7 +26,7 @@
                 return new ColoredRay(Position, dirFromPointToLight * -1f, point, LightColor, new RTColor(LightColor.Intensity / distance, LightColor.R, LightColor.G, LightColor.B));
             }
             else
-                return new ColoredRay(Position, dirFromPointToLight * -1f, point, RTColor.Black, RTColor.Black);
+                return null;
         }
     }
 }

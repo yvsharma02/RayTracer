@@ -24,27 +24,23 @@
         private const int RES_X = 1920;
         private const int RES_Y = 1080;
 
-        private const int RAYS_PER_PIXEL_X = 2;
-        private const int RAYS_PER_PIXEL_Y = 2;
+        private const int RAYS_PER_PIXEL_X = 4;
+        private const int RAYS_PER_PIXEL_Y = 4;
          
-        private const int BOUCES = 2;
+        private const int BOUCES = 1;
 
         private World world;
-
-        // 200 / 1024
 
         public TestScene()
         {
             Transformation sphere1transform = new Transformation(new Vector3D(0, -10, 10), new Vector3D(0, 0, 0), new Vector3D(5, 5, 5));
             Transformation sphere2transform = sphere1transform + new Transformation(new Vector3D(15, 0, 0));
 
-//            Transformation t = Transformation.CalculateRequiredRotationTransform(Vector3D.Zero, Vector3D.Zero, new Vector3D(90, 45, 0) * RTMath.DEG_TO_RAD);//.Rotation.ToEulerAngles();
-
             Transformation planeTransform = new Transformation(new Vector3D(0, -25, 0), new Vector3D(0, 0) * RTMath.DEG_TO_RAD, new Vector3D(50, 50, 50));
             planeTransform = new Transformation(planeTransform.Position, Quaternion.FromEulerAngles(new Vector3D(0, 0, 0) * RTMath.DEG_TO_RAD), planeTransform.Scale);
             Transformation cameraTransform = new Transformation(new Vector3D(0, 0, 25), new Vector3D(0, 0, 0) * RTMath.DEG_TO_RAD, new Vector3D(200f / 1024f * 1920f, 200f / 1024f * 1080f, 25));
 
-            RTColor sunColor = new RTColor(RTColor.MAX_INTENSITY / 3f, 1f, 1f, 1f);
+            RTColor sunColor = new RTColor(RTColor.MAX_INTENSITY / 1.5f, 1f, 1f, 1f);
             Vector3D sunDir = new Vector3D(0f, -1f, 0f);
 
             world = new World(null, null);
@@ -53,10 +49,10 @@
 
             world.SetMainCamera(cam);
 
-            ShapeShader sphere1shader = new AdvanceShapeShader(TextureLoader.Load(METAL_BASE), TextureLoader.Load(METAL_NORMAL), 0f, 1f, 1f);
-            ShapeShader sphere2shader = new AdvanceShapeShader(null, null, 0f, 1f, 1f);
+            ShapeShader sphere1shader = new DefaultShapeShader(TextureLoader.Load(METAL_BASE), TextureLoader.Load(METAL_NORMAL), 0f, .25f, .5f);
+            ShapeShader sphere2shader = new DefaultShapeShader(null, null, 0f, 1f, 1f);
 
-            ShapeShader planeShader = new AdvanceShapeShader(TextureLoader.Load(BRICKS_BASE), TextureLoader.Load(BRICKS_NORMAL), 0f, 1f, 1f);
+            ShapeShader planeShader = new DefaultShapeShader(TextureLoader.Load(BRICKS_BASE), TextureLoader.Load(BRICKS_NORMAL), 0f, 1f, 1f);
 
             MeshBuilder sphereBuilder = MeshReader.ReadObj(SPHERE_MESH);
             world.AddShape(sphereBuilder.Build(sphere1transform, sphere1shader, true));
@@ -64,7 +60,6 @@
 
             MeshBuilder planeBuilder = MeshReader.ReadObj(PLANE_MESH);
             world.AddShape(planeBuilder.Build(planeTransform, planeShader, false));
-
             world.AddLightSource(new GlobalLight(new Transformation(new Vector3D(0, 50, 0)), sunDir, sunColor));
         }
 

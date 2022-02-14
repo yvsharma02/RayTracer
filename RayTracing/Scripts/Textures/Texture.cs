@@ -26,6 +26,8 @@ namespace RayTracing
 
         public Texture(String location)
         {
+            Log.InfoLine("Loading Texture: {0}", location);
+
             this.Location = location;
             Bitmap bmp = new Bitmap(location);
 

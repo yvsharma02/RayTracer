@@ -20,7 +20,7 @@
             if (shape == null)
                 return new ColoredRay(Direction * float.NegativeInfinity, Direction, point, LightColor, LightColor);
             else
-                return new ColoredRay(Direction * float.NegativeInfinity, Direction, point, RTColor.Black, RTColor.Black);
+                return null;
         }
     }
 }

@@ -71,7 +71,7 @@ namespace RayTracing
             Vector3D pointOfContact;
 
             if (hitShape == null)
-                pointOfContact = tracingRay.Origin + tracingRay.DirectionReversed * float.PositiveInfinity;
+                pointOfContact = tracingRay.Origin + tracingRay.Direction * float.PositiveInfinity;
             else
                 pointOfContact = truePOC + tracingRay.DirectionReversed * Vector3D.EPSILON;
 
@@ -87,7 +87,8 @@ namespace RayTracing
                 {
                     LightSource light = world.GetLightSource(i);
                     ColoredRay reachingRay = light.GetReachingRays(world, pointOfContact);
-                    hittingRays.AddLast(new EmmisionChain(light, reachingRay, null));
+                    if (reachingRay != null)
+                        hittingRays.AddLast(new EmmisionChain(light, reachingRay, null));
                 }
             }
 

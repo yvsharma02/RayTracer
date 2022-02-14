@@ -7,6 +7,8 @@ namespace RayTracing
     {
         public static MeshBuilder ReadObj(String location)
         {
+            Log.InfoLine("Reading mesh: {0}", location);
+
             LinkedList<Vector3D> vertices = new LinkedList<Vector3D>();
             LinkedList<Vector2D> uvs = new LinkedList<Vector2D>();
             LinkedList<Vector3D> vertexNormals = new LinkedList<Vector3D>();
