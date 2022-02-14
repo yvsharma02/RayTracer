@@ -11,6 +11,14 @@ namespace RayTracing
             this.RaysPerPixel = raysPerPixel;
         }
 
+        private Vector3D GetPixelTopLeft(Camera camera, Int2D index)
+        {
+            float percentX = (float) index.x / (camera.Resolution.x + 1);
+            float percentY = (float) index.y / (camera.Resolution.y + 1);
+
+            return camera.ProjectedTopLeft + (camera.ProjectedTopRight - camera.ProjectedTopLeft) * percentX - (camera.ProjectedTopLeft - camera.ProjectedButtomLeft) * percentY;
+        }
+
         public override Ray[] GetEmmitedRays(Camera camera, Int2D pixel)
         {
             int c = 0;
@@ -18,14 +26,19 @@ namespace RayTracing
 
             Vector3D origin = camera.EyePosition;
 
+            Vector3D pixelSizeX = GetPixelTopLeft(camera, new Int2D(1, 0)) - GetPixelTopLeft(camera, new Int2D(0, 0));
+            Vector3D pixelSizeY = GetPixelTopLeft(camera, new Int2D(0, 1)) - GetPixelTopLeft(camera, new Int2D(0, 0));
+
+            Vector3D pixelTopLeft = GetPixelTopLeft(camera, pixel);
+
             for (int i = 0; i < RaysPerPixel.x; i++)
             {
                 for (int j = 0; j < RaysPerPixel.y; j++)
                 {
-                    float percentX = (pixel.x * RaysPerPixel.x + i) / (float)((camera.Resolution.x + 1) * RaysPerPixel.x);
-                    float percentY = (pixel.y * RaysPerPixel.y + j) / (float)((camera.Resolution.y + 1) * RaysPerPixel.y);
+                    float subPixelPercentX = (float) (i + 1) / (RaysPerPixel.x + 1);
+                    float subPixelPercentY = (float) (j + 1) / (RaysPerPixel.y + 1);
 
-                    Vector3D screenPt = camera.ProjectedTopLeft + (camera.ProjectedTopRight - camera.ProjectedTopLeft) * percentX - (camera.ProjectedTopLeft - camera.ProjectedButtomLeft) * percentY;
+                    Vector3D screenPt = pixelTopLeft + (pixelSizeX * subPixelPercentX) + (pixelSizeY * subPixelPercentY);
                     Vector3D dir = screenPt - origin;
 
                     rays[c++] = new Ray(origin, dir);
