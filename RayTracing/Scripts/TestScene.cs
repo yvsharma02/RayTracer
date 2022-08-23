@@ -29,7 +29,7 @@
 
         private const int BOUCES = 1;
 
-        private const int WORD_SUBDIVISION_LEVELS = 1;
+        private const int WORD_SUBDIVISION_LEVELS = 0;
 
         private World world;
         private Camera mainCamera;

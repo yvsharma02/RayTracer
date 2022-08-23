@@ -137,8 +137,31 @@
             return subMat;
         }
 
+        public static float Determinant3x3(float[,] matrix)
+        {
+            if (matrix.GetLength(0) != 3 || matrix.GetLength(1) != 3)
+                throw new ArgumentException("3x3 matrix must be provided");
+
+            float a1 = matrix[0, 0];
+            float b1 = matrix[1, 0];
+            float c1 = matrix[2, 0];
+
+            float a2 = matrix[0, 1];
+            float b2 = matrix[1, 1];
+            float c2 = matrix[2, 1];
+
+            float a3 = matrix[0, 2];
+            float b3 = matrix[1, 2];
+            float c3 = matrix[2, 2];
+
+            return (a1 * b2 * c3 + b1 * c2 * a3 + c1 * a2 * b3) - (a3 * b2 * c1 + b3 * c2 * a2 + c3 * a2 * b1);
+        }
+
         public static float Determinant(float[,] matrix)
         {
+            if (matrix.GetLength(0) == 3 && matrix.GetLength(1) == 3)
+                return Determinant3x3(matrix);
+
             if (matrix.GetLength(0) != matrix.GetLength(1))
                 throw new ArgumentException("Matrix should be square.");
 
