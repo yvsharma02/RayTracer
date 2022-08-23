@@ -34,15 +34,14 @@ namespace RayTracing
             {
                 for (int j = 0; j < pixelCount.y; j++)
                 {
-                    Camera cam = world.GetMainCamera();
-                    Ray[] emmitedRays = cam.Shader.GetEmmitedRays(cam, new Int2D(startingPixelIndex.x + i, startingPixelIndex.y + j));
+                    Ray[] emmitedRays = camera.Shader.GetEmmitedRays(camera, new Int2D(startingPixelIndex.x + i, startingPixelIndex.y + j));
 
                     EmmisionChain[][] raysReachingPixel = new EmmisionChain[emmitedRays.Length][];
 
                     for (int k = 0; k < raysReachingPixel.Length; k++)
-                        raysReachingPixel[k] = StartTrace(emmitedRays[k], world, cam);
+                        raysReachingPixel[k] = StartTrace(emmitedRays[k], world, camera);
 
-                    image[startingPixelIndex.x + i, startingPixelIndex.y + j] = cam.Shader.CalculateFinalPixelColor(cam, new Int2D(startingPixelIndex.x + i, startingPixelIndex.y + j), raysReachingPixel);
+                    image[startingPixelIndex.x + i, startingPixelIndex.y + j] = camera.Shader.CalculateFinalPixelColor(camera, new Int2D(startingPixelIndex.x + i, startingPixelIndex.y + j), raysReachingPixel);
                 }
             }
         }

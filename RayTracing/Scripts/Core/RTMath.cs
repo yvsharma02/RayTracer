@@ -1,5 +1,6 @@
 ﻿namespace RayTracing
 {
+
     public static class RTMath
     {
         public const float RAD_TO_DEG = 180f / MathF.PI;
@@ -304,10 +305,8 @@
         public static bool LiesInsideBounds(Vector3D point, Vector3D lowerBounds, Vector3D upperBounds)
         {
             for (int i = 0; i < 3; i++)
-            {
                 if (point[i] > upperBounds[i] || point[i] < lowerBounds[i])
                     return false;
-            }
 
             return true;
         }

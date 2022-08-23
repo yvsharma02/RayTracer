@@ -15,6 +15,8 @@
         public Triangle UVTriangle => uvTriangle.Value;
         public Triangle NormalTriangle => normalTriangle.Value;
 
+        public override Bounds BoundaryBox => Bounds.GenerateNewContainingPoints(vertexTriangle.Point0, vertexTriangle.Point1, vertexTriangle.Point2);
+
         public MeshTriangle(Transformation transform, Triangle vertices, Triangle? normals, Triangle? uvs, ShapeShader shader, Vector3D? defaultNormal = null, bool applyTransformImmediately = true) : base(transform, shader)
         {
             this.vertexTriangle = vertices;

@@ -6,6 +6,8 @@
 
         public ShapeShader Shader { get; protected set; }
 
+        public abstract Bounds BoundaryBox { get; }
+
         public Shape(Transformation transform, ShapeShader shader) : base(transform)
         {
             this.Shader = shader;

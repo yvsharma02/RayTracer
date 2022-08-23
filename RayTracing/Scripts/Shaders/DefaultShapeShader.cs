@@ -48,6 +48,8 @@
             float lightOnlyIntensity = 0f;
             float totalIntensity = 0f;
 
+            float maxIntensity = float.NegativeInfinity;
+
             RawRTColor totalColor = RTColor.Black;
             RawRTColor lightOnlyColor = RTColor.Black;
 
@@ -57,20 +59,23 @@
  
                 if (hittingRays[i].LastEmmiter != null && ((hittingRays[i].LastEmmiter.TypeID & (int)TypeID.Light) != 0))
                     lightOnlyIntensity += hittingRays[i].EmmitedRay.DestinationColor.Intensity;
+
+                if (maxIntensity < hittingRays[i].EmmitedRay.DestinationColor.Intensity)
+                    maxIntensity = hittingRays[i].EmmitedRay.DestinationColor.Intensity;
             }
 
             for (int i = 0; i < hittingRays.Length; i++)
             {
                 bool comingFromLightSource = hittingRays[i].LastEmmiter != null && ((hittingRays[i].LastEmmiter.TypeID & (int)TypeID.Light) != 0);
 
-                float lightOnlyWeight = hittingRays[i].EmmitedRay.DestinationColor.Intensity / lightOnlyIntensity;
-                float weight = hittingRays[i].EmmitedRay.DestinationColor.Intensity / totalIntensity;
+                float lightOnlyWeight = hittingRays[i].EmmitedRay.DestinationColor.Intensity / maxIntensity;
+                float weight = hittingRays[i].EmmitedRay.DestinationColor.Intensity / maxIntensity;
 
                 if (!float.IsNormal(weight) && weight != 0f)
-                    weight = 1f;
+                    weight = 0f;
 
                 if (!float.IsNormal(lightOnlyWeight) && weight != 0f)
-                    lightOnlyWeight = 1f;
+                    lightOnlyWeight = 0f;
 
                 if (!comingFromLightSource)
                     weight *= Reflectiveness;

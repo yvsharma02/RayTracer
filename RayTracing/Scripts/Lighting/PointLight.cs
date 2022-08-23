@@ -17,13 +17,14 @@
 
         public override ColoredRay GetReachingRays(World world, Vector3D point)
         {
-            Vector3D dirFromPointToLight = Position - point;
+            Vector3D dirFromLightToPoint = point - Position;
 
-            Shape closestShapeToPoint = world.ClosestShapeHit(new Ray(point, dirFromPointToLight), out Vector3D poc);
-            if (closestShapeToPoint == null || poc.DistanceFromSq(point) >= poc.DistanceFromSq(Position))
+            Shape closestShapeToPoint = world.ClosestShapeHit(new Ray(Position, point - Position), out Vector3D poc);
+
+            if (closestShapeToPoint == null || Position.DistanceFromSq(poc) >= Position.DistanceFromSq(point))
             {
                 float distance = Vector3D.Distance(point, Position) * DistanceScale;
-                return new ColoredRay(Position, dirFromPointToLight * -1f, point, LightColor, new RTColor(LightColor.Intensity / distance, LightColor.R, LightColor.G, LightColor.B));
+                return new ColoredRay(Position, dirFromLightToPoint * 1f, point, LightColor, new RTColor(LightColor.Intensity / distance * distance, LightColor.R, LightColor.G, LightColor.B));
             }
             else
                 return null;

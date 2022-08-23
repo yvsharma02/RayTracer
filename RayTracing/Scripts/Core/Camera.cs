@@ -5,7 +5,7 @@ namespace RayTracing
     public class Camera : WorldObject
     {
         // Corresponding to Screen X as camera viewport X and screen Y as camera viewport Y
-        public static readonly Vector3D DefaultCameraForward = -Vector3D.Forward;
+        public static readonly Vector3D DefaultCameraForward = Vector3D.Forward;
 
         public static readonly Vector3D DefaultCameraX = new Vector3D(1, 0, 0);
         public static readonly Vector3D DefaultCameraY = new Vector3D(0, 1, 0);
@@ -34,14 +34,12 @@ namespace RayTracing
         public Vector3D ProjectedButtomLeft => EyePosition + transformedForward - (transformedX * ScreenSize.x) / 2f - (transformedY * ScreenSize.y) / 2f;
         public Vector3D ProjectedButtomRight => EyePosition + transformedForward + (transformedX * ScreenSize.x) / 2f - (transformedY * ScreenSize.y) / 2f;
 
-        public readonly RTColor NoHitColor;
         public readonly PixelShader Shader;
         public readonly Int2D Resolution;
         public readonly int BounceLimit;
 
-        public Camera(Transformation transform, Int2D resolution, PixelShader shader, int bounceLimit, RTColor noHitColor) : base(transform)
+        public Camera(Transformation transform, Int2D resolution, PixelShader shader, int bounceLimit) : base(transform)
         {
-            this.NoHitColor = noHitColor;
             this.BounceLimit = bounceLimit;
             this.Shader = shader;
             this.Resolution = resolution;

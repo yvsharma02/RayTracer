@@ -4,6 +4,8 @@ namespace RayTracing
 {
     public class Log
     {
+        private static object threadRestartLockObj = new object();
+
         private const int SLEEP_TIME = 250;
 
         private class LogItem
@@ -69,10 +71,13 @@ namespace RayTracing
 
         private static void CheckLogThread()
         {
-            if (logThread == null || !logThread.IsAlive)
+            lock (threadRestartLockObj)
             {
-                logThread = new Thread(LogWorkerThread);
-                logThread.Start();
+                if (logThread == null || !logThread.IsAlive)
+                {
+                    logThread = new Thread(LogWorkerThread);
+                    logThread.Start();
+                }
             }
         }
 

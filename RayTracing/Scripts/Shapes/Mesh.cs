@@ -3,7 +3,7 @@
     public class Mesh : Shape
     {
         private Bounds bounds;
-        public Bounds MeshBounds { get => bounds; }
+        public override Bounds BoundaryBox => bounds;
 
         private MeshTriangle[] meshTriangles;
 
@@ -86,7 +86,7 @@
 
         protected override Vector3D? CalculateRayContactPosition(Ray ray, out Shape subshape)
         {
-            Vector3D? boundsPOC = RTMath.RayBoundsContact(ray, MeshBounds.LowerBounds, MeshBounds.UpperBounds);
+            Vector3D? boundsPOC = RTMath.RayBoundsContact(ray, BoundaryBox.LowerBounds, BoundaryBox.UpperBounds);
 
             if (!boundsPOC.HasValue)
             {
