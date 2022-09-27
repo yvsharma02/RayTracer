@@ -99,22 +99,30 @@ namespace RayTracing
             }
             else
             {
+                Shape currentClosestHitShape = null;
+                Vector3D currentClosestHitPOC = default;
+                float currentClosestHitDistSq = float.PositiveInfinity;
+
                 for (int i = 0; i < subwords.Length; i++)
                 {
                     if (RTMath.RayBoundsContact(ray, subwords[i].bounds.LowerBounds, subwords[i].bounds.UpperBounds) != null)
                     {
                         Vector3D poc;
                         Shape hit = subwords[i].ClosestShapeHit(ray, out poc);
+                        float distSq = ray.Origin.DistanceFromSq(poc);
 
                         if (hit != null)
                         {
-                            pointOfContact = poc;
-                            return hit;
+                            if (distSq < currentClosestHitDistSq) {
+                                currentClosestHitDistSq = distSq;
+                                currentClosestHitPOC = poc;
+                                currentClosestHitShape = hit;
+                            }
                         }
                     }
                 }
-                pointOfContact = default;
-                return null;
+                pointOfContact = currentClosestHitPOC;
+                return currentClosestHitShape;
             }
         }
 
